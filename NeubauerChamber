@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Zellrechner – Neubauer Kammer</title>
+
+<style>
+    :root {
+        --primary: #4a90e2;
+        --primary-dark: #3b7ac4;
+        --bg: #f4f6f9;
+        --card-bg: #ffffff;
+        --radius: 16px;
+    }
+
+    body {
+        font-family: "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .card {
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: var(--radius);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        width: 100%;
+        max-width: 600px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: clamp(22px, 4vw, 28px);
+    }
+
+    label {
+        font-weight: 600;
+        margin-top: 15px;
+        display: block;
+        color: #444;
+        font-size: clamp(14px, 3vw, 16px);
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 6px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: clamp(16px, 3.5vw, 18px);
+        transition: 0.2s;
+    }
+
+    input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 4px rgba(74,144,226,0.4);
+    }
+
+    button {
+        margin-top: 25px;
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: clamp(18px, 4vw, 20px);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: var(--primary-dark);
+    }
+
+    .result {
+        margin-top: 25px;
+        padding: 20px;
+        background: #eef4ff;
+        border-left: 5px solid var(--primary);
+        border-radius: 10px;
+        font-size: clamp(16px, 3.5vw, 18px);
+        line-height: 1.6;
+    }
+
+    /* Extra mobile spacing */
+    @media (max-width: 480px) {
+        .card {
+            padding: 20px;
+        }
+        button {
+            padding: 16px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>Zellrechner (Neubauer Kammer)</h1>
+
+    <label>Gezählte Zellen (4 Quadrate):</label>
+    <input type="number" id="count" value="100">
+
+    <label>Zielzellen pro Well:</label>
+    <input type="number" id="targetPerWell" value="6000">
+
+    <label>Anzahl Wells:</label>
+    <input type="number" id="numWells" value="1">
+
+    <button onclick="calculate()">Berechnen</button>
+
+    <div class="result" id="output">Bitte Werte eingeben und berechnen.</div>
+</div>
+
+<script>
+function calculate() {
+    const count = parseFloat(document.getElementById('count').value);
+    const targetPerWell = parseFloat(document.getElementById('targetPerWell').value);
+    const numWells = parseFloat(document.getElementById('numWells').value) || 1;
+
+    if (isNaN(count) || count <= 0 || isNaN(targetPerWell) || targetPerWell <= 0) {
+        document.getElementById('output').innerHTML = "Bitte sinnvolle Werte eingeben.";
+        return;
+    }
+
+    const conc = (count / 4) * 1e4;
+
+    const volPerWell_ml = targetPerWell / conc;
+    const volPerWell_ul = volPerWell_ml * 1000;
+
+    const totalVol_ml = volPerWell_ml * numWells;
+    const totalVol_ul = volPerWell_ul * numWells;
+
+    document.getElementById('output').innerHTML = `
+        <b>Konzentration:</b> ${conc.toFixed(2)} Zellen/ml<br>
+        <b>Volumen pro Well:</b> ${volPerWell_ul.toFixed(2)} µl (${volPerWell_ml.toFixed(4)} ml)<br>
+        <b>Gesamtvolumen für ${numWells} Wells:</b> ${totalVol_ul.toFixed(2)} µl (${totalVol_ml.toFixed(4)} ml)
+    `;
+}
+</script>
+
+</body>
+</html>

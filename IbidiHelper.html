@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ibidi Well & Pattern Koordinaten</title>
+
+<style>
+  :root {
+    --primary: #4a90e2;
+    --primary-dark: #3b7ac4;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --radius: 18px;
+    --text: #222;
+  }
+
+  body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    color: var(--text);
+  }
+
+  .card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    width: 100%;
+    max-width: 850px;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: clamp(22px, 5vw, 30px);
+  }
+
+  h2 {
+    margin-top: 25px;
+    font-size: clamp(18px, 4vw, 22px);
+  }
+
+  label {
+    font-weight: 600;
+    margin-top: 12px;
+    display: block;
+    font-size: clamp(14px, 3.5vw, 17px);
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 4px;
+    border: 1px solid #bbb;
+    border-radius: 10px;
+    font-size: clamp(15px, 3.5vw, 18px);
+    background: var(--card-bg);
+    color: var(--text);
+  }
+
+  button {
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: clamp(17px, 4vw, 20px);
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: var(--primary-dark);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .hint {
+    background: #fff7d1;
+    padding: 12px;
+    border-left: 5px solid #e0b300;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: clamp(14px, 3.5vw, 17px);
+  }
+
+  .result {
+    margin-top: 20px;
+    padding: 16px;
+    background: #eef4ff;
+    border-left: 6px solid var(--primary);
+    border-radius: 12px;
+    font-size: clamp(14px, 3.5vw, 17px);
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+  }
+</style>
+</head>
+
+<body>
+<div class="card">
+
+  <h1>ibidi Well & Pattern Koordinaten</h1>
+
+  <div class="hint">
+    <b>Hinweis:</b><br>
+    Bitte immer die <b>linke Wandmitte</b> und die <b>obere Wandmitte</b> messen.<br>
+    Das Koordinatensystem ist fest definiert:<br>
+    +X = nach hinten, –X = nach vorne, +Y = nach links, –Y = nach rechts.<br>
+    Die anderen Wände werden automatisch berechnet, können aber manuell korrigiert werden.
+  </div>
+
+  <h2>1. Gemessene Wandmitten</h2>
+  <div class="row">
+    <div>
+      <label>Left Wall X</label>
+      <input type="number" id="leftX" value="0">
+    </div>
+    <div>
+      <label>Left Wall Y</label>
+      <input type="number" id="leftY" value="0">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Top Wall X</label>
+      <input type="number" id="topX" value="0">
+    </div>
+    <div>
+      <label>Top Wall Y</label>
+      <input type="number" id="topY" value="0">
+    </div>
+  </div>
+
+  <h2>2. Well‑Geometrie</h2>
+  <div class="row">
+    <div>
+      <label>Well‑Breite X [mm]</label>
+      <input type="number" id="wellWidth" value="6.1" step="0.01">
+    </div>
+    <div>
+      <label>Well‑Höhe Y [mm]</label>
+      <input type="number" id="wellHeight" value="5.7" step="0.01">
+    </div>
+  </div>
+
+  <button onclick="predictWalls()">Wände prognostizieren</button>
+
+  <h2>3. Prognostizierte / editierbare Wände</h2>
+  <div class="row">
+    <div>
+      <label>Right Wall X</label>
+      <input type="number" id="rightX" value="0">
+    </div>
+    <div>
+      <label>Right Wall Y</label>
+      <input type="number" id="rightY" value="0">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Bottom Wall X</label>
+      <input type="number" id="bottomX" value="0">
+    </div>
+    <div>
+      <label>Bottom Wall Y</label>
+      <input type="number" id="bottomY" value="0">
+    </div>
+  </div>
+
+  <h2>4. Globale Parameter</h2>
+  <div class="row">
+    <div>
+      <label>Z‑Wert</label>
+      <input type="number" id="zVal" value="200">
+    </div>
+    <div>
+      <label>Anzahl Wells</label>
+      <input type="number" id="numWells" value="2" min="1">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Well‑Spacing [mm]</label>
+      <input type="number" id="wellSpacing" value="8.7" step="0.01">
+    </div>
+    <div>
+      <label>Pattern‑Abstand d [mm]</label>
+      <input type="number" id="patternD" value="0.5" step="0.01">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Tilt1</label>
+      <input type="number" id="tilt1" value="0">
+    </div>
+    <div>
+      <label>Tilt2</label>
+      <input type="number" id="tilt2" value="0">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Tilt3</label>
+      <input type="number" id="tilt3" value="0">
+    </div>
+  </div>
+
+  <button onclick="computeCoords()">Koordinaten berechnen</button>
+
+  <div class="result" id="output">Koordinaten erscheinen hier…</div>
+
+</div>
+
+<script>
+function predictWalls() {
+  const leftX = parseFloat(document.getElementById('leftX').value);
+  const leftY = parseFloat(document.getElementById('leftY').value);
+  const topX  = parseFloat(document.getElementById('topX').value);
+  const topY  = parseFloat(document.getElementById('topY').value);
+
+  const wX = parseFloat(document.getElementById('wellWidth').value);
+  const wY = parseFloat(document.getElementById('wellHeight').value);
+
+  // Rechte Wand (–Y Richtung)
+  document.getElementById('rightX').value = leftX.toFixed(4);
+  document.getElementById('rightY').value = (leftY - wX).toFixed(4);
+
+  // Untere Wand (+X Richtung)
+  document.getElementById('bottomX').value = (topX + wY).toFixed(4);
+  document.getElementById('bottomY').value = topY.toFixed(4);
+}
+
+function computeCoords() {
+  const leftX = parseFloat(document.getElementById('leftX').value);
+  const leftY = parseFloat(document.getElementById('leftY').value);
+  const topX  = parseFloat(document.getElementById('topX').value);
+  const topY  = parseFloat(document.getElementById('topY').value);
+
+  const rightX = parseFloat(document.getElementById('rightX').value);
+  const rightY = parseFloat(document.getElementById('rightY').value);
+  const bottomX = parseFloat(document.getElementById('bottomX').value);
+  const bottomY = parseFloat(document.getElementById('bottomY').value);
+
+  const zVal = parseFloat(document.getElementById('zVal').value);
+  const tilt1 = parseFloat(document.getElementById('tilt1').value);
+  const tilt2 = parseFloat(document.getElementById('tilt2').value);
+  const tilt3 = parseFloat(document.getElementById('tilt3').value);
+
+  const numWells = parseInt(document.getElementById('numWells').value, 10);
+  const wellSpacing = parseFloat(document.getElementById('wellSpacing').value);
+  const d = parseFloat(document.getElementById('patternD').value);
+
+  // Mittelpunkt des ersten Wells
+  const centerX1 = (leftX + bottomX) / 2;
+  const centerY1 = (topY + rightY) / 2;
+
+  let out = "";
+
+  for (let i = 0; i < numWells; i++) {
+    const centerX = centerX1 + i * wellSpacing; // +X Richtung
+    const centerY = centerY1;
+
+    const pts = [
+      [centerX,       centerY      ],
+      [centerX + d,   centerY      ],
+      [centerX - d,   centerY      ],
+      [centerX + d,   centerY + d  ],
+      [centerX + d,   centerY - d  ],
+      [centerX - d,   centerY + d  ],
+      [centerX - d,   centerY - d  ]
+    ];
+
+    out += `# Well ${i+1} (Center: ${centerX.toFixed(4)}, ${centerY.toFixed(4)})\n`;
+    for (const p of pts) {
+      out += `[ ${p[0].toFixed(4)}   ${p[1].toFixed(4)}   ${zVal}   ${tilt1}   ${tilt2}   ${tilt3} ]\n`;
+    }
+    out += `\n`;
+  }
+
+  document.getElementById('output').textContent = out;
+}
+</script>
+
+</body>
+</html>

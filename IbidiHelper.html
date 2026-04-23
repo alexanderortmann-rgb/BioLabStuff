@@ -13,6 +13,8 @@
     --card-bg: #ffffff;
     --radius: 18px;
     --text: #222;
+    --highlight: #ffe9a8;
+    --highlight-border: #e6a200;
   }
 
   body {
@@ -31,7 +33,7 @@
     border-radius: var(--radius);
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     width: 100%;
-    max-width: 850px;
+    max-width: 900px;
   }
 
   h1 {
@@ -105,6 +107,102 @@
     white-space: pre;
     overflow-x: auto;
   }
+
+  /* Neues Grid: 3 Spalten × 6 Zeilen */
+  .well-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 6px;
+
+  /* NEU: Größe begrenzen */
+  width: 100%;
+  max-width: 250px;
+
+  /* Zentrieren */
+  margin: 10px auto;
+}
+
+
+  .well-cell {
+    position: relative;
+    padding-top: 100%;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    background: #fafafa;
+    transition: 0.15s all;
+    font-size: 12px;
+  }
+
+  .well-cell.selected {
+    border-color: var(--primary);
+    background: #dfe9ff;
+  }
+
+  .well-cell.reference {
+    border-color: #e67e22;
+    background: #ffe9d6;
+  }
+
+  .well-label {
+    position: absolute;
+    inset: 4px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-size: 11px;
+    pointer-events: none;
+  }
+
+  .well-ref-tag {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    font-size: 10px;
+    background: #e67e22;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .highlight {
+    background: var(--highlight) !important;
+    border-color: var(--highlight-border) !important;
+  }
+
+  .wall-select {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  
+  .pattern-grid {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.pattern-cell {
+  position: relative;
+  padding-top: 100%;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pattern-cell span {
+  position: absolute;
+  font-size: 14px;
+  font-weight: bold;
+}
+  
 </style>
 </head>
 
@@ -114,37 +212,76 @@
   <h1>ibidi Well & Pattern Koordinaten</h1>
 
   <div class="hint">
-    <b>Hinweis:</b><br>
-    Bitte immer die <b>linke Wandmitte</b> und die <b>obere Wandmitte</b> messen.<br>
-    Das Koordinatensystem ist fest definiert:<br>
-    +X = nach hinten, –X = nach vorne, +Y = nach links, –Y = nach rechts.<br>
-    Die anderen Wände werden automatisch berechnet, können aber manuell korrigiert werden.
+    +X = nach oben, +Y = nach links.<br>
+    Wähle zuerst die Wells im Grid aus. Das erste ausgewählte Well ist das Referenz‑Well.<br>
+    Dann wähle die Referenz‑Wand und gib deren Koordinaten ein.
   </div>
 
-  <h2>1. Gemessene Wandmitten</h2>
+  <!-- 1. Wells auswählen -->
+  <h2>1. Wells auswählen</h2>
+  <div id="wellGrid" class="well-grid"></div>
+
+  <!-- 2. Referenzwand -->
+  <h2>2. Referenzwand auswählen</h2>
+  <div class="wall-select">
+    <label><input type="radio" name="refWall" value="left" checked> Links</label>
+    <label><input type="radio" name="refWall" value="top"> Oben</label>
+    <label><input type="radio" name="refWall" value="right"> Rechts</label>
+    <label><input type="radio" name="refWall" value="bottom"> Unten</label>
+  </div>
+
+  <!-- 3. Wandkoordinaten -->
+  <h2>3. Wandkoordinaten eingeben</h2>
+
   <div class="row">
     <div>
       <label>Left Wall X</label>
-      <input type="number" id="leftX" value="0">
+      <input type="number" id="leftX" step="0.001">
     </div>
     <div>
       <label>Left Wall Y</label>
-      <input type="number" id="leftY" value="0">
+      <input type="number" id="leftY" step="0.001">
     </div>
   </div>
 
   <div class="row">
     <div>
       <label>Top Wall X</label>
-      <input type="number" id="topX" value="0">
+      <input type="number" id="topX" step="0.001">
     </div>
     <div>
       <label>Top Wall Y</label>
-      <input type="number" id="topY" value="0">
+      <input type="number" id="topY" step="0.001">
     </div>
   </div>
 
-  <h2>2. Well‑Geometrie</h2>
+  <div class="row">
+    <div>
+      <label>Right Wall X</label>
+      <input type="number" id="rightX" step="0.001">
+    </div>
+    <div>
+      <label>Right Wall Y</label>
+      <input type="number" id="rightY" step="0.001">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Bottom Wall X</label>
+      <input type="number" id="bottomX" step="0.001">
+    </div>
+    <div>
+      <label>Bottom Wall Y</label>
+      <input type="number" id="bottomY" step="0.001">
+    </div>
+  </div>
+
+  <button onclick="predictWalls()">Wände berechnen</button>
+
+  <!-- 4. Globale Parameter -->
+  <h2>4. Globale Parameter</h2>
+
   <div class="row">
     <div>
       <label>Well‑Breite X [mm]</label>
@@ -156,52 +293,26 @@
     </div>
   </div>
 
-  <button onclick="predictWalls()">Wände prognostizieren</button>
-
-  <h2>3. Prognostizierte / editierbare Wände</h2>
   <div class="row">
     <div>
-      <label>Right Wall X</label>
-      <input type="number" id="rightX" value="0">
+      <label>Wanddicke X [mm]</label>
+      <input type="number" id="wallX" value="2" step="0.01">
     </div>
     <div>
-      <label>Right Wall Y</label>
-      <input type="number" id="rightY" value="0">
+      <label>Wanddicke Y [mm]</label>
+      <input type="number" id="wallY" value="2" step="0.01">
     </div>
   </div>
 
-  <div class="row">
-    <div>
-      <label>Bottom Wall X</label>
-      <input type="number" id="bottomX" value="0">
-    </div>
-    <div>
-      <label>Bottom Wall Y</label>
-      <input type="number" id="bottomY" value="0">
-    </div>
-  </div>
-
-  <h2>4. Globale Parameter</h2>
   <div class="row">
     <div>
       <label>Z‑Wert</label>
       <input type="number" id="zVal" value="200">
     </div>
-    <div>
-      <label>Anzahl Wells</label>
-      <input type="number" id="numWells" value="2" min="1">
-    </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Well‑Spacing [mm]</label>
-      <input type="number" id="wellSpacing" value="8.7" step="0.01">
-    </div>
-    <div>
-      <label>Pattern‑Abstand d [mm]</label>
+   <!-- <div>
+        <label>Pattern‑Abstand d [mm]</label>
       <input type="number" id="patternD" value="0.5" step="0.01">
-    </div>
+    </div>-->
   </div>
 
   <div class="row">
@@ -221,6 +332,30 @@
       <input type="number" id="tilt3" value="0">
     </div>
   </div>
+  
+  <h2>5. Pattern‑Einstellungen</h2>
+
+<div class="row">
+  <div>
+    <label>Pattern Rows</label>
+    <input type="number" id="patternRows" value="2" min="1">
+  </div>
+  <div>
+    <label>Pattern Cols</label>
+    <input type="number" id="patternCols" value="3" min="1">
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <label>Pattern Spacing [mm]</label>
+    <input type="number" id="patternSpacing" value="0.5" step="0.01">
+  </div>
+</div>
+
+<h3>Pattern‑Vorschau</h3>
+<div id="patternGrid" class="pattern-grid"></div>
+  
 
   <button onclick="computeCoords()">Koordinaten berechnen</button>
 
@@ -229,74 +364,302 @@
 </div>
 
 <script>
-function predictWalls() {
-  const leftX = parseFloat(document.getElementById('leftX').value);
-  const leftY = parseFloat(document.getElementById('leftY').value);
-  const topX  = parseFloat(document.getElementById('topX').value);
-  const topY  = parseFloat(document.getElementById('topY').value);
+/* Neues Grid: 6 Zeilen × 3 Spalten */
+const ROWS = 6;
+const COLS = 3;
 
-  const wX = parseFloat(document.getElementById('wellWidth').value);
-  const wY = parseFloat(document.getElementById('wellHeight').value);
+let selectedWells = [];
 
-  // Rechte Wand (–Y Richtung)
-  document.getElementById('rightX').value = leftX.toFixed(4);
-  document.getElementById('rightY').value = (leftY - wX).toFixed(4);
+function rowLabel(r) { return String.fromCharCode(65 + r); }
+function colLabel(c) { return (c + 1).toString(); }
 
-  // Untere Wand (+X Richtung)
-  document.getElementById('bottomX').value = (topX + wY).toFixed(4);
-  document.getElementById('bottomY').value = topY.toFixed(4);
-}
+function buildGrid() {
+  const grid = document.getElementById('wellGrid');
+  grid.innerHTML = "";
 
-function computeCoords() {
-  const leftX = parseFloat(document.getElementById('leftX').value);
-  const leftY = parseFloat(document.getElementById('leftY').value);
-  const topX  = parseFloat(document.getElementById('topX').value);
-  const topY  = parseFloat(document.getElementById('topY').value);
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
 
-  const rightX = parseFloat(document.getElementById('rightX').value);
-  const rightY = parseFloat(document.getElementById('rightY').value);
-  const bottomX = parseFloat(document.getElementById('bottomX').value);
-  const bottomY = parseFloat(document.getElementById('bottomY').value);
+      const cell = document.createElement('div');
+      cell.className = 'well-cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
 
-  const zVal = parseFloat(document.getElementById('zVal').value);
-  const tilt1 = parseFloat(document.getElementById('tilt1').value);
-  const tilt2 = parseFloat(document.getElementById('tilt2').value);
-  const tilt3 = parseFloat(document.getElementById('tilt3').value);
+      const label = document.createElement('div');
+      label.className = 'well-label';
+      label.textContent = rowLabel(r) + colLabel(c);
+      cell.appendChild(label);
 
-  const numWells = parseInt(document.getElementById('numWells').value, 10);
-  const wellSpacing = parseFloat(document.getElementById('wellSpacing').value);
-  const d = parseFloat(document.getElementById('patternD').value);
-
-  // Mittelpunkt des ersten Wells
-  const centerX1 = (leftX + bottomX) / 2;
-  const centerY1 = (topY + rightY) / 2;
-
-  let out = "";
-
-  for (let i = 0; i < numWells; i++) {
-    const centerX = centerX1 + i * wellSpacing; // +X Richtung
-    const centerY = centerY1;
-
-    const pts = [
-      [centerX,       centerY      ],
-      [centerX + d,   centerY      ],
-      [centerX - d,   centerY      ],
-      [centerX + d,   centerY + d  ],
-      [centerX + d,   centerY - d  ],
-      [centerX - d,   centerY + d  ],
-      [centerX - d,   centerY - d  ]
-    ];
-
-    out += `# Well ${i+1} (Center: ${centerX.toFixed(4)}, ${centerY.toFixed(4)})\n`;
-    for (const p of pts) {
-      out += `[ ${p[0].toFixed(4)}   ${p[1].toFixed(4)}   ${zVal}   ${tilt1}   ${tilt2}   ${tilt3} ]\n`;
+      cell.addEventListener('click', () => toggleWell(r, c));
+      grid.appendChild(cell);
     }
-    out += `\n`;
   }
 
-  document.getElementById('output').textContent = out;
+  updateGridVisuals();
 }
-</script>
 
-</body>
-</html>
+function toggleWell(r, c) {
+  const idx = selectedWells.findIndex(w => w.row === r && w.col === c);
+  if (idx >= 0) selectedWells.splice(idx, 1);
+  else selectedWells.push({row: r, col: c});
+  updateGridVisuals();
+}
+
+function getReferenceWell() {
+  return selectedWells.length > 0 ? selectedWells[0] : null;
+}
+
+function updateGridVisuals() {
+  const cells = document.querySelectorAll('.well-cell');
+  const ref = getReferenceWell();
+
+  cells.forEach(cell => {
+    const r = parseInt(cell.dataset.row);
+    const c = parseInt(cell.dataset.col);
+    cell.classList.remove('selected', 'reference');
+    const tag = cell.querySelector('.well-ref-tag');
+    if (tag) tag.remove();
+
+    if (selectedWells.some(w => w.row === r && w.col === c)) {
+      cell.classList.add('selected');
+    }
+    if (ref && ref.row === r && ref.col === c) {
+      cell.classList.add('reference');
+      const t = document.createElement('div');
+      t.className = 'well-ref-tag';
+      t.textContent = 'Ref';
+      cell.appendChild(t);
+    }
+  });
+}
+
+/* Wand-Highlight */
+function updateWallHighlight() {
+  const wall = document.querySelector('input[name="refWall"]:checked').value;
+
+  const fields = {
+    left:   ['leftX','leftY'],
+    top:    ['topX','topY'],
+    right:  ['rightX','rightY'],
+    bottom: ['bottomX','bottomY']
+  };
+
+  ['leftX','leftY','topX','topY','rightX','rightY','bottomX','bottomY']
+    .forEach(id => document.getElementById(id).classList.remove('highlight'));
+
+  fields[wall].forEach(id => document.getElementById(id).classList.add('highlight'));
+}
+
+document.querySelectorAll('input[name="refWall"]').forEach(r => {
+  r.addEventListener('change', updateWallHighlight);
+});
+
+/* Wände korrekt rekonstruieren */
+function predictWalls() {
+  const wall = document.querySelector('input[name="refWall"]:checked').value;
+
+  const wX = parseFloat(wellWidth.value);   // Well-Breite in X
+  const wY = parseFloat(wellHeight.value);  // Well-Höhe in Y
+
+  let cx, cy;  // Center des Wells
+
+  // 1) CENTER aus der gemessenen Wandmitte bestimmen
+  if (wall === "top") {
+    const tx = parseFloat(topX.value);
+    const ty = parseFloat(topY.value);
+    cx = tx + wX / 2;
+    cy = ty;
+  }
+
+  if (wall === "bottom") {
+    const bx = parseFloat(bottomX.value);
+    const by = parseFloat(bottomY.value);
+    cx = bx - wX / 2;
+    cy = by;
+  }
+
+  if (wall === "left") {
+    const lx = parseFloat(leftX.value);
+    const ly = parseFloat(leftY.value);
+    cx = lx;
+    cy = ly + wY / 2;
+  }
+
+  if (wall === "right") {
+    const rx = parseFloat(rightX.value);
+    const ry = parseFloat(rightY.value);
+    cx = rx;
+    cy = ry - wY / 2;
+  }
+
+  // 2) Aus dem Center alle vier Wände rekonstruieren
+
+  // Top-Wand (oben, entlang X)
+  topX.value = (cx - wX / 2).toFixed(4);
+  topY.value = cy.toFixed(4);
+
+  // Bottom-Wand (unten, entlang X)
+  bottomX.value = (cx + wX / 2).toFixed(4);
+  bottomY.value = cy.toFixed(4);
+
+  // Left-Wand (links, entlang Y)
+  leftX.value = cx.toFixed(4);
+  leftY.value = (cy - wY / 2).toFixed(4);
+
+  // Right-Wand (rechts, entlang Y)
+  rightX.value = cx.toFixed(4);
+  rightY.value = (cy + wY / 2).toFixed(4);
+}
+
+
+/* Koordinaten berechnen */
+function computeCoords() {
+  if (selectedWells.length === 0) {
+    alert("Bitte mindestens ein Well auswählen.");
+    return;
+  }
+
+  // out MUSS GANZ OBEN STEHEN
+  let out = "";
+
+  const ref = getReferenceWell();
+  const refRow = ref.row;
+  const refCol = ref.col;
+
+  const leftXv = parseFloat(leftX.value);
+  const topYv  = parseFloat(topY.value);
+
+  const wellW = parseFloat(wellWidth.value);
+  const wellH = parseFloat(wellHeight.value);
+  const wallW = parseFloat(wallX.value);
+  const wallH = parseFloat(wallY.value);
+
+  const pitchX = wellW + wallW;
+  const pitchY = wellH + wallH;
+
+  const centerX_ref = leftXv;
+  const centerY_ref = topYv;
+
+  const zVal  = parseFloat(zValEl.value);
+  const t1    = parseFloat(tilt1.value);
+  const t2    = parseFloat(tilt2.value);
+  const t3    = parseFloat(tilt3.value);
+
+  const rows = parseInt(patternRows.value);
+  const cols = parseInt(patternCols.value);
+  const spacing = parseFloat(patternSpacing.value);
+
+  // Für jedes ausgewählte Well
+  selectedWells.forEach(w => {
+
+    // Center dieses Wells berechnen
+    const dX = (refRow - w.row) * pitchX;
+    const dY = (refCol - w.col) * pitchY;
+
+    const cx = centerX_ref + dX;
+    const cy = centerY_ref + dY;
+
+    const label = rowLabel(w.row) + colLabel(w.col);
+
+    out += `# Well ${label} (Center: ${cx.toFixed(4)}, ${cy.toFixed(4)})\n`;
+
+    // Pattern-Punkte generieren
+    const pts = generatePatternPoints(cx, cy, rows, cols, spacing);
+
+    pts.forEach(p => {
+      out += `${p.index}. [ ${p.x.toFixed(4)}   ${p.y.toFixed(4)}   ${zVal}   ${t1}   ${t2}   ${t3} ]\n`;
+    });
+
+    out += `\n`;
+  });
+
+  output.textContent = out;
+}
+
+  
+function buildPatternGrid(rows, cols) {
+	  const grid = document.getElementById('patternGrid');
+	  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+	  grid.innerHTML = "";
+
+	  let counter = 1;
+
+	  for (let r = 0; r < rows; r++) {
+	    for (let c = 0; c < cols; c++) {
+	      const cell = document.createElement('div');
+	      cell.className = 'pattern-cell';
+
+	      const label = document.createElement('span');
+	      label.textContent = counter++;
+	      cell.appendChild(label);
+
+	      grid.appendChild(cell);
+	    }
+	  }
+	}
+	
+function generatePatternPoints(centerX, centerY, rows, cols, spacing) {
+	  const pts = [];
+	  let counter = 1;
+
+	  for (let r = 0; r < rows; r++) {
+	    const xOff = (r - (rows - 1) / 2) * spacing;
+
+	    for (let c = 0; c < cols; c++) {
+	      const yOff = (c - (cols - 1) / 2) * spacing;
+
+	      pts.push({
+	        index: counter++,
+	        x: centerX + xOff,
+	        y: centerY + yOff
+	      });
+	    }
+	  }
+
+	  return pts;
+	}
+	
+document.getElementById('patternRows').addEventListener('input', updatePatternPreview);
+document.getElementById('patternCols').addEventListener('input', updatePatternPreview);
+document.getElementById('patternSpacing').addEventListener('input', updatePatternPreview);
+
+function updatePatternPreview() {
+  const r = parseInt(patternRows.value);
+  const c = parseInt(patternCols.value);
+  buildPatternGrid(r, c);
+}
+
+
+
+
+  /* DOM Shortcuts */
+  const leftXEl = document.getElementById('leftX');
+  const leftYEl = document.getElementById('leftY');
+  const topXEl  = document.getElementById('topX');
+  const topYEl  = document.getElementById('topY');
+  const rightX  = document.getElementById('rightX');
+  const rightY  = document.getElementById('rightY');
+  const bottomX = document.getElementById('bottomX');
+  const bottomY = document.getElementById('bottomY');
+
+  const wellWidth = document.getElementById('wellWidth');
+  const wellHeight = document.getElementById('wellHeight');
+  const wallX = document.getElementById('wallX');
+  const wallY = document.getElementById('wallY');
+
+  const zValEl = document.getElementById('zVal');
+  const patternD = document.getElementById('patternD');
+  const tilt1 = document.getElementById('tilt1');
+  const tilt2 = document.getElementById('tilt2');
+  const tilt3 = document.getElementById('tilt3');
+
+  const output = document.getElementById('output');
+
+  /* Init */
+  buildGrid();
+  updateWallHighlight();
+  updatePatternPreview();
+  </script>
+
+  </body>
+  </html>

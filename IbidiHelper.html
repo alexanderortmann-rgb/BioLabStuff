@@ -652,11 +652,7 @@ function updatePatternPreview() {
 
 function parseBaseCoord(str) {
     // Erwartet Format: [ x y z t1 t2 t3 ]
-    const nums = str.replace(/[
-
-\[\]
-
-]/g, "").trim().split(/\s+/).map(Number);
+    const nums = str.replace(/[\[\]]/g, "").trim().split(/\s+/).map(Number);
     if (nums.length !== 6) return null;
     return {
         x: nums[0],

@@ -361,6 +361,23 @@
 
   <div class="result" id="output">Koordinaten erscheinen hier…</div>
 
+<h3>Patch Koordinaten Berechnung</h3>
+
+<label>Basis-Koordinate:</label>
+<input id="baseCoord" style="width: 400px;" value="[ 2.8000  2.3500  200  0  0  0 ]">
+
+<br><br>
+
+<label>Log Datei (Tabelle oder JSON):</label><br>
+<textarea id="logInput" style="width: 600px; height: 200px;"></textarea>
+
+<br><br>
+
+<button onclick="runPatchCalc()">Berechnen</button>
+
+<pre id="patchOutput"></pre>
+
+
 </div>
 
 <script>
@@ -628,6 +645,117 @@ function updatePatternPreview() {
   const c = parseInt(patternCols.value);
   buildPatternGrid(r, c);
 }
+
+// ===============================
+// PATCH KOORDINATEN BERECHNUNG
+// ===============================
+
+function parseBaseCoord(str) {
+    // Erwartet Format: [ x y z t1 t2 t3 ]
+    const nums = str.replace(/[
+
+\[\]
+
+]/g, "").trim().split(/\s+/).map(Number);
+    if (nums.length !== 6) return null;
+    return {
+        x: nums[0],
+        y: nums[1],
+        z: nums[2],
+        t1: nums[3],
+        t2: nums[4],
+        t3: nums[5]
+    };
+}
+
+function parseLogTable(text) {
+    const lines = text.split("\n").filter(l => l.trim().length > 0);
+    const patches = [];
+
+    for (const line of lines) {
+        const m = line.match(/\((\d+),\s*(\d+)\)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)/);
+        if (!m) continue;
+
+        patches.push({
+            idx: [Number(m[1]), Number(m[2])],
+            dx_px: Number(m[3]),
+            dy_px: Number(m[4])
+        });
+    }
+    return patches;
+}
+
+
+function computeAbsoluteCoords(base, patches, px_per_um) {
+    const out = [];
+
+    for (const p of patches) {
+
+        // 1) Pixel → µm
+        const dx_um = p.dx_px / px_per_um;   // Log-X
+        const dy_um = p.dy_px / px_per_um;   // Log-Y
+
+        // 2) Koordinatensystem ist vertauscht:
+        //    Log-X → Stage-Y
+        //    Log-Y → Stage-X
+        const stage_dx_um = dy_um;
+        const stage_dy_um = dx_um;
+
+        // 3) µm → mm
+        const stage_dx_mm = stage_dx_um / 1000;
+        const stage_dy_mm = stage_dy_um / 1000;
+
+        // 4) Absolute Koordinaten in mm
+        out.push({
+            idx: p.idx,
+            x: base.x + stage_dx_mm,
+            y: base.y + stage_dy_mm,
+            z: base.z,
+            t1: base.t1,
+            t2: base.t2,
+            t3: base.t3
+        });
+    }
+    return out;
+}
+
+
+
+function formatCoord(c) {
+    return `[ ${c.x.toFixed(4)}   ${c.y.toFixed(4)}   ${c.z}   ${c.t1}   ${c.t2}   ${c.t3} ]`;
+}
+
+
+
+function runPatchCalc() {
+    const baseStr = document.getElementById("baseCoord").value;
+    const logStr = document.getElementById("logInput").value;
+
+    const base = parseBaseCoord(baseStr);
+    if (!base) {
+        alert("Basis-Koordinate ungültig!");
+        return;
+    }
+
+    const patches = parseLogTable(logStr);
+    if (patches.length === 0) {
+        alert("Keine Patch-Daten erkannt!");
+        return;
+    }
+
+    const px_per_um = 0.77; // aus deiner JSON
+
+    const abs = computeAbsoluteCoords(base, patches, px_per_um);
+
+    let out = "";
+    for (const c of abs) {
+        out += `Patch ${c.idx[0]},${c.idx[1]} → ${formatCoord(c)}\n`;
+    }
+
+    document.getElementById("patchOutput").textContent = out;
+}
+
+
 
 
 

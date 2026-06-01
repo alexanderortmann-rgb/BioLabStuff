@@ -1,858 +1,1830 @@
+Ibidihelper fixed · HTML
 <!DOCTYPE html>
+
 <html lang="de">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ibidi Well & Pattern Koordinaten</title>
 
+
+
 <style>
+
   :root {
+
     --primary: #4a90e2;
+
     --primary-dark: #3b7ac4;
+
     --bg: #f4f6f9;
+
     --card-bg: #ffffff;
+
     --radius: 18px;
+
     --text: #222;
+
     --highlight: #ffe9a8;
+
     --highlight-border: #e6a200;
+
     --copied: #d4f7dc;
+
     --copied-border: #27ae60;
+
   }
+
+
 
   body {
+
     font-family: "Segoe UI", Roboto, sans-serif;
+
     background: var(--bg);
+
     margin: 0;
+
     padding: 20px;
+
     display: flex;
+
     justify-content: center;
+
     color: var(--text);
+
   }
+
+
 
   .card {
+
     background: var(--card-bg);
+
     padding: 25px;
+
     border-radius: var(--radius);
+
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
     width: 100%;
+
     max-width: 900px;
+
   }
+
+
 
   h1 {
+
     text-align: center;
+
     margin-bottom: 20px;
+
     font-size: clamp(22px, 5vw, 30px);
+
   }
+
+
 
   h2 {
+
     margin-top: 25px;
+
     font-size: clamp(18px, 4vw, 22px);
+
   }
+
+
 
   label {
+
     font-weight: 600;
+
     margin-top: 12px;
+
     display: block;
+
     font-size: clamp(14px, 3.5vw, 17px);
+
   }
+
+
 
   input[type="number"], input[type="text"] {
+
     width: 100%;
+
     padding: 10px 12px;
+
     margin-top: 4px;
+
     border: 1px solid #bbb;
+
     border-radius: 10px;
+
     font-size: clamp(15px, 3.5vw, 18px);
+
     background: var(--card-bg);
+
     color: var(--text);
+
     box-sizing: border-box;
+
   }
+
+
 
   button.main-btn {
+
     margin-top: 18px;
+
     width: 100%;
+
     padding: 14px;
+
     background: var(--primary);
+
     color: white;
+
     border: none;
+
     border-radius: 12px;
+
     font-size: clamp(17px, 4vw, 20px);
+
     cursor: pointer;
+
   }
+
+
 
   button.main-btn:hover {
+
     background: var(--primary-dark);
+
   }
+
+
 
   .row {
+
     display: grid;
+
     grid-template-columns: 1fr 1fr;
+
     gap: 12px;
+
   }
+
+
 
   .hint {
+
     background: #fff7d1;
+
     padding: 12px;
+
     border-left: 5px solid #e0b300;
+
     border-radius: 10px;
+
     margin-bottom: 20px;
+
     font-size: clamp(14px, 3.5vw, 17px);
+
   }
+
+
 
   /* Koordinaten-Output als strukturierte Liste */
+
   .coord-output {
+
     margin-top: 20px;
+
     padding: 16px;
+
     background: #eef4ff;
+
     border-left: 6px solid var(--primary);
+
     border-radius: 12px;
+
     font-size: clamp(13px, 3vw, 15px);
+
     line-height: 1.8;
+
   }
+
+
 
   .coord-output .well-section-title {
+
     font-weight: 700;
+
     color: #3b7ac4;
+
     margin-top: 10px;
+
     margin-bottom: 4px;
+
     font-size: 15px;
+
   }
+
+
 
   .coord-line {
+
     display: flex;
+
     align-items: center;
+
     gap: 8px;
+
     margin: 3px 0;
+
     padding: 4px 6px;
+
     border-radius: 6px;
+
     transition: background 0.2s;
+
   }
+
+
 
   .coord-line.just-copied {
+
     background: var(--copied);
+
     border: 1px solid var(--copied-border);
+
   }
+
+
 
   .coord-text {
+
     font-family: "Courier New", monospace;
+
     flex: 1;
+
     word-break: break-all;
+
   }
+
+
 
   .copy-btn {
+
     flex-shrink: 0;
+
     padding: 4px 10px;
+
     background: #e3ecfa;
+
     border: 1px solid #aac4ee;
+
     border-radius: 6px;
+
     cursor: pointer;
+
     font-size: 12px;
+
     color: #2c5f9e;
+
     transition: background 0.15s;
+
     white-space: nowrap;
+
   }
+
+
 
   .copy-btn:hover {
+
     background: #ccddf5;
+
   }
+
+
 
   .copy-btn.copied {
+
     background: #27ae60;
+
     color: white;
+
     border-color: #1e8449;
+
   }
+
+
 
   /* Well Grid */
+
   .well-grid {
+
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
+
     grid-template-rows: repeat(6, 1fr);
+
     gap: 6px;
+
     width: 100%;
+
     max-width: 250px;
+
     margin: 10px auto;
+
   }
+
+
 
   .well-cell {
+
     position: relative;
+
     padding-top: 100%;
+
     border-radius: 8px;
+
     border: 2px solid #ccc;
+
     cursor: pointer;
+
     background: #fafafa;
+
     transition: 0.15s all;
+
     font-size: 12px;
+
   }
+
+
 
   .well-cell.selected {
+
     border-color: var(--primary);
+
     background: #dfe9ff;
+
   }
+
+
 
   .well-cell.reference {
+
     border-color: #e67e22;
+
     background: #ffe9d6;
+
   }
+
+
 
   .well-label {
+
     position: absolute;
+
     inset: 4px;
+
     display: flex;
+
     align-items: flex-start;
+
     justify-content: flex-start;
+
     font-size: 11px;
+
     pointer-events: none;
+
   }
+
+
 
   .well-ref-tag {
+
     position: absolute;
+
     right: 4px;
+
     bottom: 4px;
+
     font-size: 10px;
+
     background: #e67e22;
+
     color: white;
+
     padding: 2px 4px;
+
     border-radius: 4px;
+
     pointer-events: none;
+
   }
+
+
 
   .highlight-input {
+
     background: var(--highlight) !important;
+
     border-color: var(--highlight-border) !important;
+
   }
+
+
 
   .wall-select {
+
     display: flex;
+
     gap: 12px;
+
     margin-top: 10px;
+
   }
+
+
 
   .pattern-grid {
+
     display: grid;
+
     gap: 6px;
+
     margin-top: 10px;
+
     max-width: 300px;
+
     margin-left: auto;
+
     margin-right: auto;
+
   }
+
+
 
   .pattern-cell {
+
     position: relative;
+
     padding-top: 100%;
+
     border: 2px solid #ccc;
+
     border-radius: 6px;
+
     background: #fafafa;
+
     font-size: 12px;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
   }
+
+
 
   .pattern-cell span {
+
     position: absolute;
+
     font-size: 14px;
+
     font-weight: bold;
+
   }
+
+
 
   .append-box {
+
     background: #f0f0f0;
+
     border: 1px solid #ccc;
+
     border-radius: 10px;
+
     padding: 12px 16px;
+
     margin-top: 16px;
+
   }
+
+
 
   .append-box label {
+
     font-size: 14px;
+
     margin-top: 0;
+
   }
+
+
 
   textarea {
+
     width: 100%;
+
     padding: 10px 12px;
+
     margin-top: 4px;
+
     border: 1px solid #bbb;
+
     border-radius: 10px;
+
     font-size: clamp(14px, 3vw, 16px);
+
     background: var(--card-bg);
+
     color: var(--text);
+
     box-sizing: border-box;
+
   }
+
+
+
+  /* Wand-Visualisierung */
+
+  .wall-visualizer {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 480px;
+
+    margin: 16px auto;
+
+    aspect-ratio: 1;
+
+    padding: 90px;
+
+    box-sizing: border-box;
+
+  }
+
+
+
+  .wall-square {
+
+    position: absolute;
+
+    inset: 90px;
+
+    border: 3px solid #555;
+
+    border-radius: 6px;
+
+    background: #f7f9ff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #aaa;
+
+    font-size: 14px;
+
+  }
+
+
+
+  .wall-group {
+
+    position: absolute;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 4px;
+
+  }
+
+
+
+  .wall-group-title {
+
+    font-weight: 700;
+
+    font-size: clamp(12px, 2.5vw, 14px);
+
+    color: #444;
+
+    white-space: nowrap;
+
+  }
+
+
+
+  .wall-group .wf-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+  }
+
+
+
+  .wall-group .wf-row span {
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: #666;
+
+    min-width: 14px;
+
+  }
+
+
+
+  .wall-group input[type="number"] {
+
+    width: 80px;
+
+    padding: 5px 7px;
+
+    font-size: 13px;
+
+    margin-top: 0;
+
+  }
+
+
+
+  .wall-group.wg-top    { left: 50%; transform: translateX(-50%); top: 0; }
+
+  .wall-group.wg-bottom { left: 50%; transform: translateX(-50%); bottom: 0; }
+
+  .wall-group.wg-left   { left: 0; top: 50%; transform: translateY(-50%); align-items: flex-end; }
+
+  .wall-group.wg-right  { right: 0; top: 50%; transform: translateY(-50%); align-items: flex-start; }
+
+
+
+  .wall-group.highlighted .wall-group-title {
+
+    color: var(--highlight-border);
+
+  }
+
+  .wall-group.highlighted input[type="number"] {
+
+    background: var(--highlight) !important;
+
+    border-color: var(--highlight-border) !important;
+
+  }
+
 </style>
+
 </head>
 
+
+
 <body>
+
 <div class="card">
+
+
 
   <h1>ibidi Well & Pattern Koordinaten</h1>
 
+
+
   <div class="hint">
+
     Für den Hexapod gilt: +X = nach oben, +Y = nach links.<br>
+
     Für die anzufahrenden Wells gilt damit: +X = Well weiter unten, +Y = Well weiter rechts. <br>
+
     Wähle zuerst die Wells im Grid aus. Das erste ausgewählte Well ist das Referenz‑Well.<br>
+
     Dann wähle die Referenz‑Wand und gib deren Koordinaten ein.
+
   </div>
+
+
 
   <!-- 1. Wells auswählen -->
+
   <h2>1. Wells auswählen</h2>
+
   <div id="wellGrid" class="well-grid"></div>
 
+
+
   <!-- 2. Referenzwand -->
+
   <h2>2. Referenzwand auswählen</h2>
+
   <div class="wall-select">
+
     <label><input type="radio" name="refWall" value="left" checked> Links</label>
+
     <label><input type="radio" name="refWall" value="top"> Oben</label>
+
     <label><input type="radio" name="refWall" value="right"> Rechts</label>
+
     <label><input type="radio" name="refWall" value="bottom"> Unten</label>
+
   </div>
+
+
 
   <!-- 3. Wandkoordinaten -->
+
   <h2>3. Wandkoordinaten eingeben</h2>
 
-  <div class="row">
-    <div>
-      <label>Left Wall X</label>
-      <input type="number" id="leftX" step="0.001">
+
+
+  <div class="wall-visualizer">
+
+
+
+    <!-- Oben -->
+
+    <div class="wall-group wg-top" id="wg-top">
+
+      <div class="wall-group-title">Top Wall</div>
+
+      <div class="wf-row"><span>X</span><input type="number" id="topX" step="0.001" placeholder="0.0000"></div>
+
+      <div class="wf-row"><span>Y</span><input type="number" id="topY" step="0.001" placeholder="0.0000"></div>
+
     </div>
-    <div>
-      <label>Left Wall Y</label>
-      <input type="number" id="leftY" step="0.001">
+
+
+
+    <!-- Links -->
+
+    <div class="wall-group wg-left" id="wg-left">
+
+      <div class="wall-group-title">Left Wall</div>
+
+      <div class="wf-row"><span>X</span><input type="number" id="leftX" step="0.001" placeholder="0.0000"></div>
+
+      <div class="wf-row"><span>Y</span><input type="number" id="leftY" step="0.001" placeholder="0.0000"></div>
+
     </div>
+
+
+
+    <!-- Das Quadrat -->
+
+    <div class="wall-square">Well</div>
+
+
+
+    <!-- Rechts -->
+
+    <div class="wall-group wg-right" id="wg-right">
+
+      <div class="wall-group-title">Right Wall</div>
+
+      <div class="wf-row"><span>X</span><input type="number" id="rightX" step="0.001" placeholder="0.0000"></div>
+
+      <div class="wf-row"><span>Y</span><input type="number" id="rightY" step="0.001" placeholder="0.0000"></div>
+
+    </div>
+
+
+
+    <!-- Unten -->
+
+    <div class="wall-group wg-bottom" id="wg-bottom">
+
+      <div class="wall-group-title">Bottom Wall</div>
+
+      <div class="wf-row"><span>X</span><input type="number" id="bottomX" step="0.001" placeholder="0.0000"></div>
+
+      <div class="wf-row"><span>Y</span><input type="number" id="bottomY" step="0.001" placeholder="0.0000"></div>
+
+    </div>
+
+
+
   </div>
 
-  <div class="row">
-    <div>
-      <label>Top Wall X</label>
-      <input type="number" id="topX" step="0.001">
-    </div>
-    <div>
-      <label>Top Wall Y</label>
-      <input type="number" id="topY" step="0.001">
-    </div>
-  </div>
 
-  <div class="row">
-    <div>
-      <label>Right Wall X</label>
-      <input type="number" id="rightX" step="0.001">
-    </div>
-    <div>
-      <label>Right Wall Y</label>
-      <input type="number" id="rightY" step="0.001">
-    </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Bottom Wall X</label>
-      <input type="number" id="bottomX" step="0.001">
-    </div>
-    <div>
-      <label>Bottom Wall Y</label>
-      <input type="number" id="bottomY" step="0.001">
-    </div>
-  </div>
 
   <button class="main-btn" onclick="predictWalls()">Wände berechnen</button>
 
+
+
   <!-- 4. Globale Parameter -->
+
   <h2>4. Globale Parameter</h2>
 
+
+
   <div class="row">
+
     <div>
+
       <label>Well‑Breite X [mm]</label>
+
       <input type="number" id="wellWidth" value="6.1" step="0.01">
+
     </div>
+
     <div>
+
       <label>Well‑Höhe Y [mm]</label>
+
       <input type="number" id="wellHeight" value="5.7" step="0.01">
+
     </div>
+
   </div>
 
+
+
   <div class="row">
+
     <div>
+
       <label>Wanddicke X [mm]</label>
+
       <input type="number" id="wallX" value="2" step="0.01">
+
     </div>
+
     <div>
+
       <label>Wanddicke Y [mm]</label>
+
       <input type="number" id="wallY" value="2" step="0.01">
+
     </div>
+
   </div>
 
+
+
   <div class="row">
+
     <div>
+
       <label>Z‑Wert</label>
+
       <input type="number" id="zVal" value="200">
+
     </div>
+
   </div>
 
+
+
   <div class="row">
+
     <div>
+
       <label>Tilt1</label>
+
       <input type="number" id="tilt1" value="0">
+
     </div>
+
     <div>
+
       <label>Tilt2</label>
+
       <input type="number" id="tilt2" value="0">
+
     </div>
+
   </div>
 
+
+
   <div class="row">
+
     <div>
+
       <label>Tilt3</label>
+
       <input type="number" id="tilt3" value="0">
+
     </div>
+
   </div>
+
+
 
   <h2>5. Pattern‑Einstellungen</h2>
 
-  <div class="row">
-    <div>
-      <label>Pattern Rows</label>
-      <input type="number" id="patternRows" value="2" min="1">
-    </div>
-    <div>
-      <label>Pattern Cols</label>
-      <input type="number" id="patternCols" value="3" min="1">
-    </div>
-  </div>
+
 
   <div class="row">
+
     <div>
-      <label>Pattern Spacing [mm]</label>
-      <input type="number" id="patternSpacing" value="0.5" step="0.01">
+
+      <label>Pattern Rows</label>
+
+      <input type="number" id="patternRows" value="2" min="1">
+
     </div>
+
+    <div>
+
+      <label>Pattern Cols</label>
+
+      <input type="number" id="patternCols" value="3" min="1">
+
+    </div>
+
   </div>
+
+
+
+  <div class="row">
+
+    <div>
+
+      <label>Pattern Spacing [mm]</label>
+
+      <input type="number" id="patternSpacing" value="0.5" step="0.01">
+
+    </div>
+
+  </div>
+
+
 
   <h3>Pattern‑Vorschau</h3>
+
   <div id="patternGrid" class="pattern-grid"></div>
 
+
+
   <!-- Anhänge-Koordinate -->
+
   <div class="append-box">
+
     <label>Anhänge-Koordinate (wird hinter jede Zeile gesetzt):</label>
+
     <input type="text" id="appendCoord" value="[ 0   0   25   0   0   0 ]" style="font-family: 'Courier New', monospace;">
+
   </div>
+
+
 
   <button class="main-btn" onclick="computeCoords()">Koordinaten berechnen</button>
 
+
+
   <div class="coord-output" id="output">
+
     <span style="color:#999">Koordinaten erscheinen hier…</span>
+
   </div>
+
+
 
   <!-- Patch Koordinaten -->
+
   <h3 style="margin-top:32px">Patch Koordinaten Berechnung</h3>
 
+
+
   <label>Basis-Koordinate:</label>
+
   <input type="text" id="baseCoord" value="[ 2.8000  2.3500  200  0  0  0 ]">
 
+
+
   <br><br>
+
+
 
   <label>Log Datei (Tabelle oder JSON):</label>
+
   <textarea id="logInput" style="height: 200px;"></textarea>
+
+
 
   <br><br>
 
+
+
   <!-- Anhänge-Koordinate für Patch -->
+
   <div class="append-box">
+
     <label>Anhänge-Koordinate für Patch (wird hinter jede Zeile gesetzt):</label>
+
     <input type="text" id="appendCoordPatch" value="[ 0   0   25   0   0   0 ]" style="font-family: 'Courier New', monospace;">
+
   </div>
+
+
 
   <br>
 
+
+
   <button class="main-btn" onclick="runPatchCalc()">Berechnen</button>
 
+
+
   <div class="coord-output" id="patchOutput">
+
     <span style="color:#999">Patch-Koordinaten erscheinen hier…</span>
+
   </div>
+
+
 
 </div>
 
+
+
 <script>
+
 /* ===================== GRID ===================== */
+
 const ROWS = 6;
+
 const COLS = 3;
 
+
+
 let selectedWells = [];
+
 let lastCopiedEl = null;
 
+
+
 function rowLabel(r) { return String.fromCharCode(65 + r); }
+
 function colLabel(c) { return (c + 1).toString(); }
 
+
+
 function buildGrid() {
+
   const grid = document.getElementById('wellGrid');
+
   grid.innerHTML = "";
 
+
+
   for (let r = 0; r < ROWS; r++) {
+
     for (let c = 0; c < COLS; c++) {
+
       const cell = document.createElement('div');
+
       cell.className = 'well-cell';
+
       cell.dataset.row = r;
+
       cell.dataset.col = c;
 
+
+
       const label = document.createElement('div');
+
       label.className = 'well-label';
+
       label.textContent = rowLabel(r) + colLabel(c);
+
       cell.appendChild(label);
 
+
+
       cell.addEventListener('click', () => toggleWell(r, c));
+
       grid.appendChild(cell);
+
     }
+
   }
 
+
+
   updateGridVisuals();
+
 }
+
+
 
 function toggleWell(r, c) {
+
   const idx = selectedWells.findIndex(w => w.row === r && w.col === c);
+
   if (idx >= 0) selectedWells.splice(idx, 1);
+
   else selectedWells.push({ row: r, col: c });
+
   updateGridVisuals();
+
 }
+
+
 
 function getReferenceWell() {
+
   return selectedWells.length > 0 ? selectedWells[0] : null;
+
 }
+
+
 
 function updateGridVisuals() {
+
   const cells = document.querySelectorAll('.well-cell');
+
   const ref = getReferenceWell();
 
+
+
   cells.forEach(cell => {
+
     const r = parseInt(cell.dataset.row);
+
     const c = parseInt(cell.dataset.col);
+
     cell.classList.remove('selected', 'reference');
+
     const tag = cell.querySelector('.well-ref-tag');
+
     if (tag) tag.remove();
 
+
+
     if (selectedWells.some(w => w.row === r && w.col === c)) {
+
       cell.classList.add('selected');
+
     }
+
     if (ref && ref.row === r && ref.col === c) {
+
       cell.classList.add('reference');
+
       const t = document.createElement('div');
+
       t.className = 'well-ref-tag';
+
       t.textContent = 'Ref';
+
       cell.appendChild(t);
+
     }
+
   });
+
 }
+
+
 
 /* ===================== WALL HIGHLIGHT ===================== */
+
 function updateWallHighlight() {
+
   const wall = document.querySelector('input[name="refWall"]:checked').value;
-  const fields = {
-    left:   ['leftX','leftY'],
-    top:    ['topX','topY'],
-    right:  ['rightX','rightY'],
-    bottom: ['bottomX','bottomY']
-  };
-  ['leftX','leftY','topX','topY','rightX','rightY','bottomX','bottomY']
-    .forEach(id => document.getElementById(id).classList.remove('highlight-input'));
-  fields[wall].forEach(id => document.getElementById(id).classList.add('highlight-input'));
+
+  ['wg-left','wg-top','wg-right','wg-bottom']
+
+    .forEach(id => document.getElementById(id).classList.remove('highlighted'));
+
+  document.getElementById('wg-' + wall).classList.add('highlighted');
+
 }
 
+
+
 document.querySelectorAll('input[name="refWall"]').forEach(r => {
+
   r.addEventListener('change', updateWallHighlight);
+
 });
 
+
+
 /* ===================== PREDICT WALLS ===================== */
+
 function predictWalls() {
+
   const wall = document.querySelector('input[name="refWall"]:checked').value;
+
   const wX = parseFloat(wellWidth.value);
+
   const wY = parseFloat(wellHeight.value);
+
+
 
   let cx, cy;
 
+
+
   if (wall === "top") {
+
     cx = parseFloat(topX.value) + wX / 2;
+
     cy = parseFloat(topY.value);
+
   }
+
   if (wall === "bottom") {
+
     cx = parseFloat(bottomX.value) - wX / 2;
+
     cy = parseFloat(bottomY.value);
+
   }
+
   if (wall === "left") {
+
     cx = parseFloat(leftX.value);
+
     cy = parseFloat(leftY.value) + wY / 2;
+
   }
+
   if (wall === "right") {
+
     cx = parseFloat(rightX.value);
+
     cy = parseFloat(rightY.value) - wY / 2;
+
   }
+
+
 
   topX.value    = (cx - wX / 2).toFixed(4);
+
   topY.value    = cy.toFixed(4);
+
   bottomX.value = (cx + wX / 2).toFixed(4);
+
   bottomY.value = cy.toFixed(4);
+
   leftX.value   = cx.toFixed(4);
+
   leftY.value   = (cy - wY / 2).toFixed(4);
+
   rightX.value  = cx.toFixed(4);
+
   rightY.value  = (cy + wY / 2).toFixed(4);
+
 }
+
+
 
 /* ===================== COPY BUTTON ===================== */
+
 function makeCopyBtn(fullText) {
+
   const btn = document.createElement('button');
+
   btn.className = 'copy-btn';
+
   btn.textContent = '📋 Kopieren';
 
+
+
   btn.addEventListener('click', () => {
+
     navigator.clipboard.writeText(fullText).then(() => {
+
       // Reset previous highlight
+
       if (lastCopiedEl && lastCopiedEl !== btn.parentElement) {
+
         lastCopiedEl.classList.remove('just-copied');
+
         const prevBtn = lastCopiedEl.querySelector('.copy-btn');
+
         if (prevBtn) { prevBtn.classList.remove('copied'); prevBtn.textContent = '📋 Kopieren'; }
+
       }
 
+
+
       // Mark current
+
       btn.classList.add('copied');
+
       btn.textContent = '✓ Kopiert';
+
       btn.parentElement.classList.add('just-copied');
+
       lastCopiedEl = btn.parentElement;
+
     });
+
   });
 
+
+
   return btn;
+
 }
+
+
 
 function makeCoordLine(labelText, coordStr, appendStr) {
+
   const fullText = coordStr + (appendStr ? ' ' + appendStr : '');
 
+
+
   const line = document.createElement('div');
+
   line.className = 'coord-line';
 
+
+
   const txt = document.createElement('span');
+
   txt.className = 'coord-text';
+
   txt.textContent = (labelText ? labelText + '  ' : '') + fullText;
 
+
+
   line.appendChild(txt);
+
   line.appendChild(makeCopyBtn(fullText));
 
+
+
   return line;
+
 }
 
+
+
 /* ===================== COMPUTE COORDS ===================== */
+
 function computeCoords() {
+
   if (selectedWells.length === 0) {
+
     alert("Bitte mindestens ein Well auswählen.");
+
     return;
+
   }
 
+
+
   const outputEl = document.getElementById('output');
+
   outputEl.innerHTML = '';
 
+
+
   const ref = getReferenceWell();
+
   const refRow = ref.row;
+
   const refCol = ref.col;
 
-  const leftXv = parseFloat(leftX.value);
-  const topYv  = parseFloat(topY.value);
+
+
+  const topXv  = parseFloat(topX.value);
+
+  const leftYv = parseFloat(leftY.value);
+
+
 
   const wellW = parseFloat(wellWidth.value);
+
   const wellH = parseFloat(wellHeight.value);
+
   const wallW = parseFloat(wallX.value);
+
   const wallH = parseFloat(wallY.value);
 
+
+
   const pitchX = wellW + wallW;
+
   const pitchY = wellH + wallH;
 
-  const centerX_ref = leftXv;
-  const centerY_ref = topYv;
+
+
+  // X-Achse geht von oben nach unten → topX ist obere Kante in X → Center X = topX + wellW/2
+
+  const centerX_ref = topXv + wellW / 2;
+
+  // Y-Achse geht von links nach rechts → leftY ist linke Kante in Y → Center Y = leftY + wellH/2
+
+  const centerY_ref = leftYv + wellH / 2;
+
+
 
   const zValV = parseFloat(zValEl.value);
+
   const t1 = parseFloat(tilt1.value);
+
   const t2 = parseFloat(tilt2.value);
+
   const t3 = parseFloat(tilt3.value);
 
+
+
   const pRows = parseInt(patternRows.value);
+
   const pCols = parseInt(patternCols.value);
+
   const spacing = parseFloat(patternSpacing.value);
+
+
 
   const appendStr = document.getElementById('appendCoord').value.trim();
 
-  selectedWells.forEach(w => {
-    // FIX: Vorzeichen korrigiert.
-    // Referenz-Well ist das erste gewählte Well.
-    // Wenn w.row > refRow → Well ist WEITER UNTEN → X nimmt ab (weil +X = oben)
-    const dX = (refRow + w.row) * pitchX;
-    // Wenn w.col > refCol → Well ist weiter rechts → Y nimmt ab (weil +Y = links)
-    const dY = (refCol + w.col) * pitchY;
 
-    const cx = centerX_ref + dX;
-    const cy = centerY_ref + dY;
+
+  selectedWells.forEach(w => {
+
+    const dRow = w.row - refRow;
+
+    const dCol = w.col - refCol;
+
+    // +X = Well weiter unten → größerer row-Index = mehr +X
+
+    const cx = centerX_ref + dRow * pitchX;
+
+    // +Y = Well weiter rechts → größerer col-Index = mehr +Y
+
+    const cy = centerY_ref + dCol * pitchY;
+
+
 
     const label = rowLabel(w.row) + colLabel(w.col);
 
+
+
     // Section title
+
     const title = document.createElement('div');
+
     title.className = 'well-section-title';
+
     title.textContent = `Well ${label}  (Center: ${cx.toFixed(4)}, ${cy.toFixed(4)})`;
+
     outputEl.appendChild(title);
+
+
 
     const pts = generatePatternPoints(cx, cy, pRows, pCols, spacing);
 
+
+
     pts.forEach(p => {
+
       const coordStr = `[ ${p.x.toFixed(4)}   ${p.y.toFixed(4)}   ${zValV}   ${t1}   ${t2}   ${t3} ]`;
+
       outputEl.appendChild(makeCoordLine(`${p.index}.`, coordStr, appendStr));
+
     });
+
+
 
     outputEl.appendChild(document.createElement('br'));
+
   });
+
 }
+
+
 
 /* ===================== PATTERN GRID ===================== */
+
 function buildPatternGrid(rows, cols) {
+
   const grid = document.getElementById('patternGrid');
+
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
   grid.innerHTML = "";
 
+
+
   let counter = 1;
+
   for (let r = 0; r < rows; r++) {
+
     for (let c = 0; c < cols; c++) {
+
       const cell = document.createElement('div');
+
       cell.className = 'pattern-cell';
+
       const lbl = document.createElement('span');
+
       lbl.textContent = counter++;
+
       cell.appendChild(lbl);
+
       grid.appendChild(cell);
+
     }
+
   }
+
 }
+
+
 
 function generatePatternPoints(centerX, centerY, rows, cols, spacing) {
+
   const pts = [];
+
   let counter = 1;
 
+
+
   for (let r = 0; r < rows; r++) {
+
     const xOff = (r - (rows - 1) / 2) * spacing;
+
     for (let c = 0; c < cols; c++) {
+
       const yOff = (c - (cols - 1) / 2) * spacing;
+
       pts.push({ index: counter++, x: centerX + xOff, y: centerY + yOff });
+
     }
+
   }
+
+
 
   return pts;
+
 }
+
+
 
 document.getElementById('patternRows').addEventListener('input', updatePatternPreview);
+
 document.getElementById('patternCols').addEventListener('input', updatePatternPreview);
+
 document.getElementById('patternSpacing').addEventListener('input', updatePatternPreview);
 
+
+
 function updatePatternPreview() {
+
   buildPatternGrid(parseInt(patternRows.value), parseInt(patternCols.value));
+
 }
+
+
 
 /* ===================== PATCH CALC ===================== */
+
 function parseBaseCoord(str) {
+
   const nums = str.replace(/[\[\]]/g, "").trim().split(/\s+/).map(Number);
+
   if (nums.length !== 6) return null;
+
   return { x: nums[0], y: nums[1], z: nums[2], t1: nums[3], t2: nums[4], t3: nums[5] };
+
 }
+
+
 
 function parseLogTable(text) {
+
   try {
+
     const json = JSON.parse(text);
+
     if (json.patches && Array.isArray(json.patches)) {
+
       return json.patches.map(p => {
+
         let dx_mm = null, dy_mm = null;
+
         if (p.stage_offset_mm) { dx_mm = p.stage_offset_mm[0]; dy_mm = p.stage_offset_mm[1]; }
+
         return {
+
           idx: p.patch_idx || [0, 0],
+
           dx_px: p.stage_offset_px ? p.stage_offset_px[0] : null,
+
           dy_px: p.stage_offset_px ? p.stage_offset_px[1] : null,
+
           dx_mm, dy_mm
+
         };
+
       });
+
     }
+
   } catch (e) {}
 
+
+
   const lines = text.split("\n").filter(l => l.trim().length > 0);
+
   const patches = [];
+
   for (const line of lines) {
+
     const m = line.match(/\((\d+),\s*(\d+)\)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)/);
+
     if (!m) continue;
+
     patches.push({ idx: [Number(m[1]), Number(m[2])], dx_px: Number(m[3]), dy_px: Number(m[4]), dx_mm: null, dy_mm: null });
+
   }
+
   return patches;
+
 }
+
+
 
 function computeAbsoluteCoords(base, patches, px_per_um) {
+
   const out = [];
+
   for (const p of patches) {
+
     let stage_dx_mm, stage_dy_mm;
+
     if (p.dx_mm !== null && p.dy_mm !== null) {
+
       stage_dx_mm = p.dy_mm;
+
       stage_dy_mm = p.dx_mm;
+
     } else {
+
       const dx_um = p.dx_px / px_per_um;
+
       const dy_um = p.dy_px / px_per_um;
+
       stage_dx_mm = dy_um / 1000;
+
       stage_dy_mm = dx_um / 1000;
+
     }
+
     out.push({
+
       idx: p.idx,
+
       x: base.x + stage_dx_mm,
+
       y: base.y + stage_dy_mm,
+
       z: base.z, t1: base.t1, t2: base.t2, t3: base.t3
+
     });
+
   }
+
   return out;
+
 }
+
+
 
 function runPatchCalc() {
+
   const baseStr = document.getElementById("baseCoord").value;
+
   const logStr = document.getElementById("logInput").value;
+
   const appendStr = document.getElementById('appendCoordPatch').value.trim();
 
+
+
   const base = parseBaseCoord(baseStr);
+
   if (!base) { alert("Basis-Koordinate ungültig!"); return; }
 
+
+
   const patches = parseLogTable(logStr);
+
   if (patches.length === 0) { alert("Keine Patch-Daten erkannt!"); return; }
 
+
+
   const px_per_um = 0.77;
+
   const abs = computeAbsoluteCoords(base, patches, px_per_um);
 
+
+
   const outputEl = document.getElementById('patchOutput');
+
   outputEl.innerHTML = '';
 
+
+
   for (const c of abs) {
+
     const coordStr = `[ ${c.x.toFixed(4)}   ${c.y.toFixed(4)}   ${c.z}   ${c.t1}   ${c.t2}   ${c.t3} ]`;
+
     outputEl.appendChild(makeCoordLine(`Patch ${c.idx[0]},${c.idx[1]}`, coordStr, appendStr));
+
   }
+
 }
 
+
+
 /* ===================== DOM SHORTCUTS ===================== */
+
 const leftX    = document.getElementById('leftX');
+
 const leftY    = document.getElementById('leftY');
+
 const topX     = document.getElementById('topX');
+
 const topY     = document.getElementById('topY');
+
 const rightX   = document.getElementById('rightX');
+
 const rightY   = document.getElementById('rightY');
+
 const bottomX  = document.getElementById('bottomX');
+
 const bottomY  = document.getElementById('bottomY');
 
+
+
 const wellWidth  = document.getElementById('wellWidth');
+
 const wellHeight = document.getElementById('wellHeight');
+
 const wallX      = document.getElementById('wallX');
+
 const wallY      = document.getElementById('wallY');
 
+
+
 const zValEl     = document.getElementById('zVal');
+
 const tilt1      = document.getElementById('tilt1');
+
 const tilt2      = document.getElementById('tilt2');
+
 const tilt3      = document.getElementById('tilt3');
 
+
+
 const patternRows    = document.getElementById('patternRows');
+
 const patternCols    = document.getElementById('patternCols');
+
 const patternSpacing = document.getElementById('patternSpacing');
 
+
+
 /* ===================== INIT ===================== */
+
 buildGrid();
+
 updateWallHighlight();
+
 updatePatternPreview();
+
 </script>
+
 </body>
+
 </html>
+
+ 

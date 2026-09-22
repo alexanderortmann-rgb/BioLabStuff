@@ -7,99 +7,115 @@
 <title>Zellrechner – Neubauer Kammer</title>
 
 <style>
-    :root {
-        --primary: #4a90e2;
-        --primary-dark: #3b7ac4;
-        --bg: #f4f6f9;
-        --card-bg: #ffffff;
-        --radius: 16px;
-    }
+:root {
+    --primary: #4a90e2;
+    --primary-dark: #3b7ac4;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --radius: 16px;
+}
 
-    body {
-        font-family: "Segoe UI", Roboto, sans-serif;
-        background: var(--bg);
-        margin: 0;
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-    }
+body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
 
+.card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 600px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: clamp(22px, 4vw, 28px);
+}
+
+label {
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+    color: #444;
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: clamp(16px, 3.5vw, 18px);
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 4px rgba(74,144,226,0.4);
+}
+
+button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 14px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: clamp(18px, 4vw, 20px);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: var(--primary-dark);
+}
+
+.result {
+    margin-top: 25px;
+    padding: 20px;
+    background: #eef4ff;
+    border-left: 5px solid var(--primary);
+    border-radius: 10px;
+    font-size: clamp(16px, 3.5vw, 18px);
+    line-height: 1.6;
+}
+
+/* Extra mobile spacing */
+@media (max-width: 480px) {
     .card {
-        background: var(--card-bg);
-        padding: 25px;
-        border-radius: var(--radius);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        width: 100%;
-        max-width: 600px;
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #333;
-        font-size: clamp(22px, 4vw, 28px);
-    }
-
-    label {
-        font-weight: 600;
-        margin-top: 15px;
-        display: block;
-        color: #444;
-        font-size: clamp(14px, 3vw, 16px);
-    }
-
-    input {
-        width: 100%;
-        padding: 12px;
-        margin-top: 6px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        font-size: clamp(16px, 3.5vw, 18px);
-        transition: 0.2s;
-    }
-
-    input:focus {
-        border-color: var(--primary);
-        outline: none;
-        box-shadow: 0 0 4px rgba(74,144,226,0.4);
-    }
-
-    button {
-        margin-top: 25px;
-        width: 100%;
-        padding: 14px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: clamp(18px, 4vw, 20px);
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    button:hover {
-        background: var(--primary-dark);
-    }
-
-    .result {
-        margin-top: 25px;
         padding: 20px;
-        background: #eef4ff;
-        border-left: 5px solid var(--primary);
-        border-radius: 10px;
-        font-size: clamp(16px, 3.5vw, 18px);
-        line-height: 1.6;
     }
+    button {
+        padding: 16px;
+    }
+}
+    
+details {
+margin: 10px 0;
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+}
 
-    /* Extra mobile spacing */
-    @media (max-width: 480px) {
-        .card {
-            padding: 20px;
-        }
-        button {
-            padding: 16px;
-        }
-    }
+summary {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+details[open] {
+    background-color: #f5f5f5;
+}
 </style>
 </head>
 
@@ -110,9 +126,30 @@
 
     <label>Gezählte Zellen (4 Quadrate):</label>
     <input type="number" id="count" value="100">
+	
+	<label>
+    <input type="radio" name="inputMode" value="zellzahl">
+    Zellzahl vorgeben
+	</label>
+	
+	<label>
+	    <input type="radio" name="inputMode" value="konz" checked>
+	    Zellkonzentration vorgeben
+	</label>
+	
+	<br><br>
+	
+	<label for="targetPerWell">Zielzellen pro Well:</label>
+	<input type="number" id="targetPerWell">
+	
+	<br>
+	
+	<label for="targetConcPerWell">
+	    Zielzellenkonzentration [Zellen/mm²]:
+	</label>
+	<input type="number" id="targetConcPerWell">
 
-    <label>Zielzellen pro Well:</label>
-    <input type="number" id="targetPerWell" value="6000">
+
 
     <label>Anzahl Wells:</label>
     <input type="number" id="numWells" value="1">
@@ -120,19 +157,507 @@
     <button onclick="calculate()">Berechnen</button>
 
     <div class="result" id="output">Bitte Werte eingeben und berechnen.</div>
+    
+    <label for="optionen">Optionen Cell Dish</label>
+	<select id="optionen">
+	<option value="1W">1 Well Ibidi Dish</option>
+	<option value="2W">2 Well Ibidi Dish</option>
+	<option value="3W">3 Well Ibidi Dish</option>
+	<option value="8W">8 Well Ibidi Dish</option>
+	<option value="18W" selected>18 Well Ibidi Dish</option>
+	<option value="32W">32 Well Ibidi Dish</option>
+	<option value="circ">Round Well Ibidi Dish</option>
+	<option value="microTrichter">Microlinsen Trichter</option>
+	<option value="emGrid">EM-Grid</option>
+	<option value="indRect">Individual Rechteck</option>
+	<option value="indCirc">Individual Kreis</option>
+	</select>
+	
+	<label id="breiteLabel" for="breite">Breite [mm]</label>
+	<input type="number" id="breite">
+	<div id="laengeContainer">
+    <label for="laenge">Länge [mm]</label>
+    <input type="number" id="laenge">
+	</div>
+	<label for="hoehe">Füllhöhe</label>
+	<input type="number" id="hoehe" value="2">
+    
+    
+    <br><br>
+
+
+<details>
+	<summary>FAQ</summary>
+	<p>
+	
+		<details name = "faq">
+			
+		<summary><strong>Über diese Anwendung</strong></summary>
+		 
+		<p>
+		Dieses Tool dient zur Berechnung von Zellzahlen,
+		Zellkonzentrationen und Suspensionsvolumina für
+		verschiedene Kulturgefäße (Ibidi Slides, Well-Platten,
+		individuelle Formate und EM-Grids).
+		</p>
+		 
+		<p>
+		Die Berechnungen stellen Näherungswerte dar und sollen
+		experimentelle Planung und Vorbereitung unterstützen.
+		</p>
+		</details>
+		
+		<details name="faq">
+		<summary>Anleitung zur Zellzählung</summary>
+
+		<ol>
+		    <li>
+		        Zellsuspension gründlich mischen und die Neubauer-Kammer
+		        mit etwa <b>10–20 µl</b> Suspension befüllen.
+		    </li>
+		
+		    <li>
+		        Einige <b>Sekunden warten</b>, bis die Zellen gleichmäßig verteilt
+		        sind und nicht mehr strömen.
+		    </li>
+		
+		    <li>
+		        Die <b>vier Eckquadrate</b> sowie das <b>zentrale Großquadrat</b>
+		        unter dem Mikroskop auswählen.
+		    </li>
+		
+		    <li>
+		        Alle Zellen innerhalb der ausgewählten <b> 4 Eckquadrate zählen</b>.
+		    </li>
+		
+		    <li>
+		        Zur Vermeidung von <b>Doppelzählungen</b> gilt die <b>Randregel</b>:
+		        Zellen auf der <b><span style="color:#88B04B;">oberen und linken Begrenzung</span></b> werden
+		        <b><span style="color:#88B04B;">mitgezählt</span></b>, 
+		        Zellen auf der <b><span style="color:#DE3848;">unteren und rechten Begrenzung</span></b>
+		        werden <b><span style="color:#DE3848;">nicht gezählt</span></b>.
+		    </li>
+		
+		    <li>
+		        Aus der mittleren Zellzahl pro Quadrat kann anschließend
+		        die <b>Zellkonzentration</b> der Suspension berechnet werden. 
+		    </li>
+		</ol>
+		
+		<p>
+		    <strong>Tipp:</strong> Sind deutlich weniger als 20 oder mehr als
+		    200 Zellen pro Großquadrat vorhanden, sollte die Probe
+		    entsprechend konzentriert bzw. verdünnt und erneut gezählt
+		    werden.
+		</p>
+		
+		<p>
+		<figure>
+		    <img src="Neubauerkammer.png"
+		         alt="Neubauer Zählkammer"
+		         width="200">
+		
+		    <figcaption>
+		        Schematische Darstellung einer Neubauer-Zählkammer.
+		    </figcaption>
+		</figure>
+		</p>
+		<p>
+		    <strong>Merke:</strong><br>
+		    <span style="color:#88B04B;">
+		    ✅ Obere Linie mitzählen<br>
+		    ✅ Linke Linie mitzählen<br>
+		    </span>
+		    <span style="color:#DE3848;">
+		    ❌ Untere Linie nicht zählen<br>
+		    ❌ Rechte Linie nicht zählen
+		    </span>
+		</p>
+		
+		</details>
+		 
+		<details name = "faq">
+		<summary><strong>Neubauer-Zählkammer</strong></summary>
+		 
+		<p>
+		Die Neubauer Improved Zählkammer besitzt eine definierte
+		Kammerhöhe von 0,1 mm. Dadurch kann aus den gezählten
+		Zellen direkt die Zellkonzentration der Suspension
+		bestimmt werden.
+		</p>
+		 
+		<p>
+		Die Kammer wird über Kapillarkräfte befüllt. Üblicherweise
+		genügt ein kleiner Tropfen von etwa 10 µl bis 20 µl
+		Zellsuspension, um den Messbereich vollständig zu füllen.
+		</p>
+		 
+		<p>
+		Die Suspension sollte homogen gemischt werden, bevor sie
+		aufgetragen wird, um Sedimentation der Zellen zu vermeiden.
+		</p>
+		
+		<p>
+		<figure>
+		    <img src="Neubauerkammer.png"
+		         alt="Neubauer Zählkammer"
+		         width="200">
+		
+		    <figcaption>
+		        Schematische Darstellung einer Neubauer-Zählkammer.
+		    </figcaption>
+		</figure>
+		</p>
+		
+		
+		</details>
+		
+		<details name="faq">
+		    <summary><strong>Welche Seeding-Dichte sollte ich verwenden?</strong></summary>
+		
+		    <p>
+		        Die optimale Zelldichte hängt stark vom Zelltyp ab.
+		        Adhärente Zelllinien werden häufig mit
+		        <b>50 bis 500 Zellen/mm²</b> ausgesät.
+		    </p>
+		
+		    <p>
+		        Die hier berechneten Werte dienen als Ausgangspunkt und
+		        sollten experimentell optimiert werden.
+		    </p>
+		    
+		    <p>
+		        Folgende Werte für 3T3 Fibroblasten haben sich als zuverlässig herausgestellt:
+		        <ul>
+				<li>Einzelzellexperimente: <b>90 Zellen/ mm²</b></li>
+				<li>Untersuchung von Konglomeraten: <b>200 Zellen / mm²</b></li>
+				<li>EM-Grid Seeding (Tauchmethode): <b>10.000 Zielzellen</b></li>
+				</ul>
+		    </p>
+		    
+		</details>
+		 
+		<details name = "faq">
+		<summary><strong>Berechnung der Zellkonzentration</strong></summary>
+		 
+		<p>
+		Zellkonzentration =
+		Zellzahl / Kulturfläche
+		</p>
+		 
+		<p>
+		Beispiel:
+		</p>
+		 
+		<ul>
+		<li>6.000 Zellen pro Well</li>
+		<li>Wellfläche = 34 mm²</li>
+		<li>→ 172,5 Zellen/mm²</li>
+		</ul>
+		</details>
+		 
+		<details name = "faq">
+		<summary><strong>Berechnung der Wellfläche</strong></summary>
+		 
+		<p>
+		Rechteckige Wells:
+		</p>
+		 
+		<p>
+		Fläche = Breite × Länge
+		</p>
+		 
+		<p>
+		Kreisförmige Wells:
+		</p>
+		 
+		<p>
+		Fläche = π × (Durchmesser/2)²
+		</p>
+		 
+		<p>
+		Die Fläche wird bei jeder Änderung der Geometrie
+		automatisch neu berechnet.
+		</p>
+		</details>
+		 
+		<details name = "faq">
+		<summary><strong>EM-Grid-Modell</strong></summary>
+ 
+		<p>
+		Für EM-Grids existiert keine definierte Kulturkammer.
+		Die Flüssigkeit wird als frei liegender Tropfen
+		modelliert.
+		</p>
+		 
+		<p>
+		Zur Volumenschätzung wird eine Halbkugel angenommen.
+		</p>
+		 
+		<p>
+		Volumen Halbkugel:
+		</p>
+		 
+		<p>
+		V = 2/3 × π × r³
+		</p>
+		 
+		<p>
+		Die tatsächliche Tropfenform hängt von der
+		Oberflächenspannung, dem Kontaktwinkel und der
+		Grid-Beschichtung ab.
+		</p>
+		</details>
+		 
+		<details name = "faq">
+		<summary><strong>Welche Einheiten werden verwendet?</strong></summary>
+		 
+		<ul>
+		<li>Längenangaben in mm</li>
+		<li>Flächenangaben in mm²</li>
+		<li>Volumen in µl und ml</li>
+		<li>Zellkonzentration in Zellen/mm²</li>
+		</ul>
+		</details>
+		
+		<details name = "faq">
+		<summary><strong>Wie genau sind die Berechnungen?</strong></summary>
+		 
+		<p>
+		Die Ergebnisse basieren auf geometrischen Modellen und
+		Herstellerangaben der Kulturgefäße.
+		</p>
+		 
+		<p>
+		Tatsächliche Zelladhäsion, Pipettierverluste,
+		Sedimentation, Well-Randeffekte oder Verdunstung werden nicht berücksichtigt.
+		</p>
+		</details>
+	
+	</p>
+	
+</details>
+
+	
+    
+    
 </div>
 
+
+
+
 <script>
+
+/*############################
+ 
+ Dimensions und Flächenberechnungen
+ 
+##############################*/
+
+const dishes = {
+	    "1W":  { breite: 48.8, laenge: 21.8 },			// , flaeche: 10.6384
+	    "2W":  { breite: 23.8, laenge: 21.6 },			//, flaeche: 5.1408
+	    "4W":  { breite: 11.4, laenge: 21.6 },			//, flaeche: 2.4624
+	    "8W":  { breite: 10.7, laenge: 9.4 },			//, flaeche: 1.0058
+	    "18W": { breite: 6.1,  laenge: 5.7 },			//, flaeche: 0.3477
+	    "32W": { breite: 3.5,  laenge: 3.5 },			//, flaeche:  0.1225
+	    "circ": { breite: 31, laenge: 31 },				//, flaeche: 7.547
+	    "microTrichter": {breite: 1.4, laenge: ""},
+	    "emGrid": {breite: 3.05, laenge: ""},
+	    "indRect": { breite: "", laenge: "" },			//, flaeche: ""
+	    "indCirc": { breite: "", laenge: ""}			//, flaeche: ""
+	};
+
+function updateDimensions() {
+
+    const cfg = dishes[optionen.value];
+
+    if (!cfg) return;
+
+    breite.value = cfg.breite;
+    laenge.value = cfg.laenge;
+
+    const individual =
+        optionen.value === "indRect" ||
+        optionen.value === "indCirc";
+
+    breite.disabled = !individual;
+    laenge.disabled = !individual;
+
+    updateFlaeche();
+}
+
+
+let flaeche = 0;
+
+function updateFlaeche() {
+
+    const b = parseFloat(breite.value) || 0;
+    const l = parseFloat(laenge.value) || 0;
+
+    const isCircle =
+        optionen.value === "circ" ||
+        optionen.value === "microTrichter" ||
+        optionen.value === "indCirc";
+    
+    const isQubic =
+    		optionen.value === "emGrid";
+
+    if (isCircle) {
+
+        const r = b / 2;
+        flaeche = Math.PI * r * r;
+
+    } 	else if (isQubic) {
+    	
+    		const r = b / 2;
+    		flaeche = Math.PI * r * r;
+    	
+    }	else {
+
+        flaeche = b * l;
+    }
+
+    flaeche = Number(flaeche.toFixed(4));
+
+    console.log("Fläche:", flaeche);
+}
+
+
+
+/*############################
+
+Automatisches hin und her rechnen der Konzentration und der Zellzahl
+
+#################################*/
+
+
+const targetPerWell = document.getElementById("targetPerWell");
+const targetConcPerWell = document.getElementById("targetConcPerWell");
+
+const radios = document.querySelectorAll(
+    'input[name="inputMode"]'
+);
+
+
+function currentMode() {
+    return document.querySelector(
+        'input[name="inputMode"]:checked'
+    ).value;
+}
+
+targetPerWell.addEventListener("input", () => {
+
+    if (currentMode() !== "zellzahl") return;
+
+    const zellzahl = parseFloat(targetPerWell.value);
+
+    if (isNaN(zellzahl) || flaeche <= 0) {
+        targetConcPerWell.value = "";
+        return;
+    }
+
+    targetConcPerWell.value =
+        (zellzahl / flaeche).toFixed(2);
+});
+
+targetConcPerWell.addEventListener("input", () => {
+
+    if (currentMode() !== "konz") return;
+
+    const konz = parseFloat(targetConcPerWell.value);
+
+    if (isNaN(konz) || flaeche <= 0) {
+        targetPerWell.value = "";
+        return;
+    }
+
+    targetPerWell.value =
+        Math.round(konz * flaeche);
+});
+
+function updateInputState() {
+
+    const mode = currentMode();
+
+    targetPerWell.disabled = mode !== "zellzahl";
+    targetConcPerWell.disabled = mode !== "konz";
+}
+
+radios.forEach(r =>
+    r.addEventListener("change", updateInputState)
+);
+
+/*############################
+
+UX Kram
+
+#################################*/
+
+// Label passen sich der Geometrie an und verstecken dynamisch den Block der Länge
+
+const breiteLabel = document.getElementById("breiteLabel");
+const laengeContainer = document.getElementById("laengeContainer");
+
+function updateGeometryUI() {
+
+    const isCircle =
+        optionen.value === "circ" ||
+        optionen.value === "microTrichter" ||
+        optionen.value === "indCirc";
+
+    if (isCircle) {
+
+        breiteLabel.textContent = "Durchmesser [mm]";
+        laengeContainer.style.display = "none";
+
+        laenge.value = "";
+
+    } else {
+
+        breiteLabel.textContent = "Breite [mm]";
+        laengeContainer.style.display = "block";
+    }
+
+    updateFlaeche();
+}
+
+/*############################
+
+Event Listener
+
+#################################*/
+
+updateInputState();
+
+optionen.addEventListener("change", () => {
+	updateDimensions();
+	updateGeometryUI();
+	});
+
+breite.addEventListener("input", updateFlaeche);
+laenge.addEventListener("input", updateFlaeche);
+updateDimensions()
+updateFlaeche()
+
+/*############################
+
+Schlussendliche Berechnung
+
+#################################*/
+
 function calculate() {
     const count = parseFloat(document.getElementById('count').value);
     const targetPerWell = parseFloat(document.getElementById('targetPerWell').value);
     const numWells = parseFloat(document.getElementById('numWells').value) || 1;
+    
+    const hoehe = parseFloat(document.getElementById('hoehe').value);
 
     if (isNaN(count) || count <= 0 || isNaN(targetPerWell) || targetPerWell <= 0) {
         document.getElementById('output').innerHTML = "Bitte sinnvolle Werte eingeben.";
         return;
     }
-
+    
     const conc = (count / 4) * 1e4;
 
     const volPerWell_ml = targetPerWell / conc;
@@ -140,14 +665,64 @@ function calculate() {
 
     const totalVol_ml = volPerWell_ml * numWells;
     const totalVol_ul = volPerWell_ul * numWells;
+    
+    // Berechnungen für die Zielflüssigkeitsmenge bezogen auf Füllhöhe
+    // Volumen ist in mm³ -> cm³ entsprechen 1 ml
+    const isQubic = optionen.value === "emGrid";
+    let gesVol_ml = 0;
+    let gesVol_ul = 0;
+    
+    if (isQubic){
+    		const b = parseFloat(breite.value) || 0;
+    		const r = b / 2;
+    		gesVol_ml = flaeche * r * 4 / 3 / 2 / 1000;
+        gesVol_ul = flaeche * r * 4 / 3 / 2;	
+    } else {
+    		gesVol_ml = flaeche * hoehe / 1000;
+        gesVol_ul = flaeche * hoehe;
+    }
+    
+    
+    
+    console.log("Fläche:", flaeche);
+    console.log("Höhe:", hoehe);
+    
+    const restVol_ml = gesVol_ml - volPerWell_ml;
+    const restVol_ul = gesVol_ul - volPerWell_ul;
+    
+    const totalGesVol_ml = gesVol_ml * numWells;
+    const totalGesVol_ul = gesVol_ul * numWells;
+    
+    const totalRestVol_ml = restVol_ml * numWells;
+    const totalRestVol_ul = restVol_ul * numWells;
+    
 
     document.getElementById('output').innerHTML = `
         <b>Konzentration:</b> ${conc.toFixed(2)} Zellen/ml<br>
         <b>Volumen pro Well:</b> ${volPerWell_ul.toFixed(2)} µl (${volPerWell_ml.toFixed(4)} ml)<br>
         <b>Gesamtvolumen für ${numWells} Wells:</b> ${totalVol_ul.toFixed(2)} µl (${totalVol_ml.toFixed(4)} ml)
+        <br><br>
+        <b> Volumen bezogen auf ${hoehe} mm Flüssigkeitshöhe:</b> <br>
+        <br>
+        <b>Gesamt-Volumen pro Well:</b> ${gesVol_ul.toFixed(2)} µl (${gesVol_ml.toFixed(4)} ml)<br>
+        <b>Zell-Volumen pro Well:</b> ${volPerWell_ul.toFixed(2)} µl (${volPerWell_ml.toFixed(4)} ml)<br>
+        <b>Medium-Volumen pro Well (Auffüllen):</b> ${restVol_ul.toFixed(2)} µl (${restVol_ml.toFixed(4)} ml)<br>
+        <br>
+        <b>Volumina für ${numWells} Wells:<br>
+        	<br>
+        <b>Gesamt-Volumen:</b> ${totalGesVol_ul.toFixed(2)} µl (${totalGesVol_ml.toFixed(4)} ml)<br>
+        <b>Zell-Volumen:</b> ${totalVol_ul.toFixed(2)} µl (${totalVol_ml.toFixed(4)} ml)<br>
+        <b>Medium-Volumen (Auffüllen):</b> ${totalRestVol_ul.toFixed(2)} µl (${totalRestVol_ml.toFixed(4)} ml)<br>
+        
     `;
 }
+
+
+
+
+
 </script>
 
 </body>
 </html>
+

@@ -122,43 +122,50 @@ details[open] {
 <body>
 
 <div class="card">
-    <h1>Zellrechner (Neubauer Kammer)</h1>
+	<label for="language">Language:</label>
+	
+	<select id="language">
+	    <option value="de">Deutsch</option>
+	    <option value="en">English</option>
+	</select>
+	
+    <h1 id="title">Zellrechner (Neubauer Kammer)</h1>
 
-    <label>Gezählte Zellen (4 Quadrate):</label>
+    <label id="countLabel">Gezählte Zellen (4 Quadrate):</label>
     <input type="number" id="count" value="100">
 	
-	<label>
+	<label id="radioCellsLabel">
     <input type="radio" name="inputMode" value="zellzahl">
     Zellzahl vorgeben
 	</label>
 	
-	<label>
+	<label id="radioConcLabel">
 	    <input type="radio" name="inputMode" value="konz" checked>
 	    Zellkonzentration vorgeben
 	</label>
 	
 	<br><br>
 	
-	<label for="targetPerWell">Zielzellen pro Well:</label>
+	<label id="targetCellsLabel" for="targetPerWell">Zielzellen pro Well:</label>
 	<input type="number" id="targetPerWell">
 	
 	<br>
 	
-	<label for="targetConcPerWell">
+	<label id="targetConcLabel" for="targetConcPerWell">
 	    Zielzellenkonzentration [Zellen/mm²]:
 	</label>
 	<input type="number" id="targetConcPerWell">
 
 
 
-    <label>Anzahl Wells:</label>
+    <label id="numWellsLabel">Anzahl Wells:</label>
     <input type="number" id="numWells" value="1">
 
-    <button onclick="calculate()">Berechnen</button>
+    <button id="calcButton" onclick="calculate()">Berechnen</button>
 
     <div class="result" id="output">Bitte Werte eingeben und berechnen.</div>
     
-    <label for="optionen">Optionen Cell Dish</label>
+    <label id="dishLabel" for="optionen">Optionen Cell Dish</label>
 	<select id="optionen">
 	<option value="1W">1 Well Ibidi Dish</option>
 	<option value="2W">2 Well Ibidi Dish</option>
@@ -176,10 +183,10 @@ details[open] {
 	<label id="breiteLabel" for="breite">Breite [mm]</label>
 	<input type="number" id="breite">
 	<div id="laengeContainer">
-    <label for="laenge">Länge [mm]</label>
+    <label id="laengeLabel" for="laenge">Länge [mm]</label>
     <input type="number" id="laenge">
 	</div>
-	<label for="hoehe">Füllhöhe</label>
+	<label id="hoeheLabel" for="hoehe">Füllhöhe</label>
 	<input type="number" id="hoehe" value="2">
     
     
@@ -448,6 +455,99 @@ details[open] {
 
 <script>
 
+
+
+/*####################################
+Sprachübersetzungen
+########################################*/
+
+let currentLang = "de";
+
+const txt = {
+
+de: {
+
+    title: "Zellrechner (Neubauer Kammer)",
+    count: "Gezählte Zellen (4 Quadrate):",
+
+    radioCells: "Zellzahl vorgeben",
+    radioConc: "Zellkonzentration vorgeben",
+
+    targetCells: "Zielzellen pro Well:",
+    targetConc: "Zielzellenkonzentration [Zellen/mm²]:",
+
+    numWells: "Anzahl Wells:",
+    calcBtn: "Berechnen",
+
+    dishLabel: "Optionen Cell Dish",
+
+    width: "Breite [mm]",
+    diameter: "Durchmesser [mm]",
+    length: "Länge [mm]",
+    fillHeight: "Füllhöhe",
+
+    outputPlaceholder:
+        "Bitte Werte eingeben und berechnen.",
+
+    invalid:
+        "Bitte sinnvolle Werte eingeben.",
+
+    concentration: "Konzentration",
+    volPerWell: "Volumen pro Well",
+    totalVol: "Gesamtvolumen für",
+    volForHeight: "Volumen bezogen auf",
+    totalVolPerWell: "Gesamt-Volumen pro Well",
+    cellVolPerWell: "Zell-Volumen pro Well",
+    mediumVolPerWell: "Medium-Volumen pro Well (Auffüllen)",
+    volumesFor: "Volumina für",
+    totalVolume: "Gesamt-Volumen",
+    cellVolume: "Zell-Volumen",
+    mediumVolume: "Medium-Volumen (Auffüllen)",
+    	cellsPerMl: "Zellen/ml"
+},
+
+en: {
+
+    title: "Cell Calculator (Neubauer Chamber)",
+    count: "Counted Cells (4 Squares):",
+
+    radioCells: "Set Target Cell Number",
+    radioConc: "Set Target Cell Density",
+
+    targetCells: "Target Cells per Well:",
+    targetConc: "Target Cell Density [cells/mm²]:",
+
+    numWells: "Number of Wells:",
+    calcBtn: "Calculate",
+
+    dishLabel: "Cell Dish Options",
+
+    width: "Width [mm]",
+    diameter: "Diameter [mm]",
+    length: "Length [mm]",
+    fillHeight: "Liquid Height",
+
+    outputPlaceholder:
+        "Please enter values and calculate.",
+
+    invalid:
+        "Please enter valid values.",
+
+    concentration: "Concentration",
+    volPerWell: "Volume per Well",
+    totalVol: "Total Volume for",
+    volForHeight: "Volume based on",
+    totalVolPerWell: "Total Volume per Well",
+    cellVolPerWell: "Cell Suspension per Well",
+    mediumVolPerWell: "Medium per Well (Fill Up)",
+    volumesFor: "Volumes for",
+    totalVolume: "Total Volume",
+    cellVolume: "Cell Volume",
+    mediumVolume: "Medium Volume (Fill Up)",
+    	cellsPerMl: "cells/ml"
+}
+};
+
 /*############################
  
  Dimensions und Flächenberechnungen
@@ -600,26 +700,84 @@ const breiteLabel = document.getElementById("breiteLabel");
 const laengeContainer = document.getElementById("laengeContainer");
 
 function updateGeometryUI() {
+	
+	const t = txt[currentLang];
 
     const isCircle =
         optionen.value === "circ" ||
         optionen.value === "microTrichter" ||
-        optionen.value === "indCirc";
+        optionen.value === "indCirc"||
+    		optionen.value === "emGrid";
 
     if (isCircle) {
 
-        breiteLabel.textContent = "Durchmesser [mm]";
+        //breiteLabel.textContent = "Durchmesser [mm]";
+        breiteLabel.textContent = t.diameter;
         laengeContainer.style.display = "none";
 
         laenge.value = "";
 
     } else {
 
-        breiteLabel.textContent = "Breite [mm]";
+        //breiteLabel.textContent = "Breite [mm]";
+        breiteLabel.textContent = t.width;
         laengeContainer.style.display = "block";
     }
 
     updateFlaeche();
+}
+
+// Übersetzung der UI Elemente
+
+function updateLanguage() {
+
+    const t = txt[currentLang];
+
+    document.getElementById("title").textContent =
+        t.title;
+
+    document.getElementById("countLabel").textContent =
+        t.count;
+
+    document.getElementById("radioCellsLabel").lastChild.textContent =
+        " " + t.radioCells;
+
+    document.getElementById("radioConcLabel").lastChild.textContent =
+        " " + t.radioConc;
+
+    document.getElementById("targetCellsLabel").textContent =
+        t.targetCells;
+
+    document.getElementById("targetConcLabel").textContent =
+        t.targetConc;
+
+    document.getElementById("numWellsLabel").textContent =
+        t.numWells;
+
+    document.getElementById("calcButton").textContent =
+        t.calcBtn;
+
+    document.getElementById("dishLabel").textContent =
+        t.dishLabel;
+
+    document.getElementById("hoeheLabel").textContent =
+        t.fillHeight;
+
+    document.getElementById("laengeLabel").textContent =
+        t.length;
+    
+    const output = document.getElementById("output");
+     
+    // Nur den Platzhalter ersetzen,
+    // falls noch kein Ergebnis berechnet wurde
+    if (
+    output.innerHTML === txt.de.outputPlaceholder ||
+    output.innerHTML === txt.en.outputPlaceholder
+    ) {
+    output.innerHTML = t.outputPlaceholder;
+    }
+
+    updateGeometryUI();
 }
 
 /*############################
@@ -628,7 +786,7 @@ Event Listener
 
 #################################*/
 
-updateInputState();
+
 
 optionen.addEventListener("change", () => {
 	updateDimensions();
@@ -637,8 +795,18 @@ optionen.addEventListener("change", () => {
 
 breite.addEventListener("input", updateFlaeche);
 laenge.addEventListener("input", updateFlaeche);
-updateDimensions()
-updateFlaeche()
+
+
+
+
+const language = document.getElementById("language");
+
+language.addEventListener("change", () => {
+
+    currentLang = language.value;
+
+    updateLanguage();
+});
 
 /*############################
 
@@ -647,6 +815,8 @@ Schlussendliche Berechnung
 #################################*/
 
 function calculate() {
+	const t = txt[currentLang];
+	
     const count = parseFloat(document.getElementById('count').value);
     const targetPerWell = parseFloat(document.getElementById('targetPerWell').value);
     const numWells = parseFloat(document.getElementById('numWells').value) || 1;
@@ -654,7 +824,7 @@ function calculate() {
     const hoehe = parseFloat(document.getElementById('hoehe').value);
 
     if (isNaN(count) || count <= 0 || isNaN(targetPerWell) || targetPerWell <= 0) {
-        document.getElementById('output').innerHTML = "Bitte sinnvolle Werte eingeben.";
+        document.getElementById('output').innerHTML = t.invalid; //"Bitte sinnvolle Werte eingeben.";
         return;
     }
     
@@ -696,7 +866,7 @@ function calculate() {
     const totalRestVol_ml = restVol_ml * numWells;
     const totalRestVol_ul = restVol_ul * numWells;
     
-
+/*
     document.getElementById('output').innerHTML = `
         <b>Konzentration:</b> ${conc.toFixed(2)} Zellen/ml<br>
         <b>Volumen pro Well:</b> ${volPerWell_ul.toFixed(2)} µl (${volPerWell_ml.toFixed(4)} ml)<br>
@@ -715,14 +885,69 @@ function calculate() {
         <b>Medium-Volumen (Auffüllen):</b> ${totalRestVol_ul.toFixed(2)} µl (${totalRestVol_ml.toFixed(4)} ml)<br>
         
     `;
+    */
+    document.getElementById('output').innerHTML = `
+
+    	<b>${t.concentration}:</b>
+    	${conc.toFixed(2)} ${t.cellsPerMl}<br>
+
+    	<b>${t.volPerWell}:</b>
+    	${volPerWell_ul.toFixed(2)} µl
+    	(${volPerWell_ml.toFixed(4)} ml)<br>
+
+    	<b>${t.totalVol} ${numWells} Well(s):</b>
+    	${totalVol_ul.toFixed(2)} µl
+    	(${totalVol_ml.toFixed(4)} ml)
+
+    	<br><br>
+
+    	<b>${t.volForHeight} ${hoehe} mm:</b>
+
+    	<br><br>
+
+    	<b>${t.totalVolPerWell}:</b>
+    	${gesVol_ul.toFixed(2)} µl
+    	(${gesVol_ml.toFixed(4)} ml)<br>
+
+    	<b>${t.cellVolPerWell}:</b>
+    	${volPerWell_ul.toFixed(2)} µl
+    	(${volPerWell_ml.toFixed(4)} ml)<br>
+
+    	<b>${t.mediumVolPerWell}:</b>
+    	${restVol_ul.toFixed(2)} µl
+    	(${restVol_ml.toFixed(4)} ml)<br>
+
+    	<br>
+
+    	<b>${t.volumesFor} ${numWells} Well(s):</b>
+
+    	<br><br>
+
+    	<b>${t.totalVolume}:</b>
+    	${totalGesVol_ul.toFixed(2)} µl
+    	(${totalGesVol_ml.toFixed(4)} ml)<br>
+
+    	<b>${t.cellVolume}:</b>
+    	${totalVol_ul.toFixed(2)} µl
+    	(${totalVol_ml.toFixed(4)} ml)<br>
+
+    	<b>${t.mediumVolume}:</b>
+    	${totalRestVol_ul.toFixed(2)} µl
+    	(${totalRestVol_ml.toFixed(4)} ml)<br>
+    	`;
 }
 
 
-
-
+/*#########################
+ * Initialisierungen
+ ############################*/
+ 
+ updateInputState();
+ updateDimensions()
+ updateFlaeche()
+ updateLanguage();
 
 </script>
 
 </body>
 </html>
-
